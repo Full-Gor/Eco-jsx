@@ -116,3 +116,12 @@ export interface AsyncState<T> {
   data: T | null;
   error: ApiError | null;
 }
+
+/** Paginated response */
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}

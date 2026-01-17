@@ -19,3 +19,9 @@ export type { BottomSheetProps, BottomSheetHeight } from './BottomSheet';
 
 export { ToastProvider, useToast } from './Toast';
 export type { ToastMessage, ToastType } from './Toast';
+
+export { Skeleton } from './Skeleton';
+
+// Re-export from layout
+export { Header } from '../layout/Header';
+export type { HeaderProps } from '../layout/Header';

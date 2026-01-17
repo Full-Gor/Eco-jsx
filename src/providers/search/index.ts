@@ -14,3 +14,7 @@ export type {
   IndexStats,
   SearchProviderOptions,
 } from './SearchProvider.interface';
+
+export {
+  createNexusServSearchProvider,
+} from './NexusServSearchProvider';

@@ -16,3 +16,21 @@ export type {
   SignedUrlOptions,
   StorageProviderOptions,
 } from './StorageProvider.interface';
+
+export {
+  createNexusServStorageProvider,
+} from './NexusServStorageProvider';
+
+export {
+  createFirebaseStorageProvider,
+} from './FirebaseStorageProvider';
+
+export {
+  createSupabaseStorageProvider,
+} from './SupabaseStorageProvider';
+
+export {
+  createStorageProvider,
+  type StorageProviderType,
+  type StorageProviderConfig,
+} from './StorageProviderFactory';

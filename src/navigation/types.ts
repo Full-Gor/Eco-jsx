@@ -28,8 +28,8 @@ export type MainTabParamList = {
 /** Home Stack param list */
 export type HomeStackParamList = {
   HomeScreen: undefined;
-  ProductDetails: { productId: string };
-  ProductList: { categoryId?: string; search?: string; title?: string };
+  ProductDetail: { productId: string };
+  ProductList: { categoryId?: string; categoryName?: string; searchQuery?: string };
   Search: undefined;
 };
 
