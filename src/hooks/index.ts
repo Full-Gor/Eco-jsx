@@ -23,3 +23,6 @@ export {
   useCategories,
   useSearch,
 } from '../contexts';
+
+// Re-export cart and checkout hooks from contexts
+export { useCart, useCheckout } from '../contexts';

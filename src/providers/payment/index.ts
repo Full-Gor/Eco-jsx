@@ -20,3 +20,9 @@ export type {
   PaymentEventCallback,
   PaymentProviderOptions,
 } from './PaymentProvider.interface';
+
+export { createStripePaymentProvider } from './StripePaymentProvider';
+export type { StripeConfig } from './StripePaymentProvider';
+
+export { createPayPalPaymentProvider } from './PayPalPaymentProvider';
+export type { PayPalConfig } from './PayPalPaymentProvider';

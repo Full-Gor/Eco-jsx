@@ -13,3 +13,7 @@ export {
   useCategories,
   useSearch,
 } from './CatalogContext';
+
+export { CartProvider, useCart } from './CartContext';
+
+export { CheckoutProvider, useCheckout } from './CheckoutContext';
