@@ -20,3 +20,6 @@ export type {
   TrackingUpdateCallback,
   TrackingProviderOptions,
 } from './TrackingProvider.interface';
+
+export { createManualTrackingProvider } from './ManualTrackingProvider';
+export type { ManualTrackingConfig } from './ManualTrackingProvider';

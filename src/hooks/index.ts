@@ -26,3 +26,6 @@ export {
 
 // Re-export cart and checkout hooks from contexts
 export { useCart, useCheckout } from '../contexts';
+
+// Re-export order hooks from contexts
+export { useOrders, useOrder, useTracking, useReturn } from '../contexts';

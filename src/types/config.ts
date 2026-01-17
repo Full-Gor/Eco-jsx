@@ -41,13 +41,17 @@ export type NewsletterProviderType =
   | 'mailchimp';    // Mailchimp
 
 export type TrackingProviderType =
+  | 'manual'        // Self-hosted manual tracking
   | 'colissimo'
   | 'chronopost'
   | 'mondialrelay'
   | 'ups'
   | 'fedex'
   | 'dhl'
-  | 'shippo';       // Multi-carrier
+  | 'shippo'        // Multi-carrier aggregator
+  | 'easypost'      // Multi-carrier API
+  | '17track'       // Universal tracking
+  | 'native';       // Native carrier integration
 
 export type SearchProviderType =
   | 'meilisearch'   // Self-hosted Meilisearch
