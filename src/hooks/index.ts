@@ -11,3 +11,6 @@ export {
   useTrackingProviders,
   useAppMode,
 } from './useConfig';
+
+// Re-export useAuth from contexts for convenience
+export { useAuth } from '../contexts';

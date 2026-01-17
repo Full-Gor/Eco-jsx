@@ -1,6 +1,6 @@
 /**
  * E-Commerce Mobile Multi-Backend Application
- * Phase 1: Foundation
+ * Phase 2: Auth & User
  */
 
 import React from 'react';
@@ -8,15 +8,26 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 
 import { ThemeProvider, useTheme } from './src/theme';
 import { ToastProvider } from './src/components/common/Toast';
+import { AuthProvider, useAuth } from './src/contexts';
 import { RootNavigator } from './src/navigation';
 
-/** App content with theme access */
+/** App content with theme and auth access */
 function AppContent() {
   const theme = useTheme();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading screen while checking auth status
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer
@@ -51,8 +62,17 @@ function AppContent() {
       }}
     >
       <StatusBar style={theme.isDark ? 'light' : 'dark'} />
-      <RootNavigator initialAuthenticated={true} />
+      <RootNavigator initialAuthenticated={isAuthenticated} />
     </NavigationContainer>
+  );
+}
+
+/** App with Auth Provider */
+function AppWithAuth() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
@@ -63,7 +83,7 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <ToastProvider>
-            <AppContent />
+            <AppWithAuth />
           </ToastProvider>
         </ThemeProvider>
       </SafeAreaProvider>
@@ -74,5 +94,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

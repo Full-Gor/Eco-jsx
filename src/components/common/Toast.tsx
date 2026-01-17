@@ -36,7 +36,8 @@ export interface ToastMessage {
 }
 
 interface ToastContextType {
-  showToast: (toast: Omit<ToastMessage, 'id'>) => void;
+  /** Show toast - accepts object or (title, type) signature */
+  showToast: ((toast: Omit<ToastMessage, 'id'>) => void) & ((title: string, type?: ToastType) => void);
   hideToast: (id: string) => void;
   success: (title: string, message?: string) => void;
   error: (title: string, message?: string) => void;
@@ -167,9 +168,16 @@ export function ToastProvider({ children }: ToastProviderProps) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const showToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
+  const showToast = useCallback((toastOrTitle: Omit<ToastMessage, 'id'> | string, type?: ToastType) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(7);
-    setToasts((prev) => [...prev, { ...toast, id }]);
+
+    if (typeof toastOrTitle === 'string') {
+      // Called with (title, type) signature
+      setToasts((prev) => [...prev, { id, title: toastOrTitle, type: type || 'info' }]);
+    } else {
+      // Called with object signature
+      setToasts((prev) => [...prev, { ...toastOrTitle, id }]);
+    }
   }, []);
 
   const success = useCallback(

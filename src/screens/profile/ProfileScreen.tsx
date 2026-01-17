@@ -1,13 +1,21 @@
 /**
  * Profile Screen
+ * Enhanced with authentication and navigation
  */
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemeContext } from '../../theme';
-import { Card } from '../../components/common';
+import { Card, Modal, Button } from '../../components/common';
+import { useToast } from '../../components/common/Toast';
+import { useAuth } from '../../hooks';
+import { ProfileStackParamList } from '../../navigation/types';
+
+type ProfileNavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
 interface MenuItemProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -16,13 +24,14 @@ interface MenuItemProps {
   onPress?: () => void;
   showArrow?: boolean;
   danger?: boolean;
+  badge?: number;
 }
 
-function MenuItem({ icon, label, value, onPress, showArrow = true, danger = false }: MenuItemProps) {
+function MenuItem({ icon, label, value, onPress, showArrow = true, danger = false, badge }: MenuItemProps) {
   const theme = useTheme();
 
   return (
-    <TouchableOpacity onPress={onPress} style={styles.menuItem}>
+    <TouchableOpacity onPress={onPress} style={styles.menuItem} activeOpacity={0.7}>
       <View
         style={[
           styles.menuIcon,
@@ -45,6 +54,11 @@ function MenuItem({ icon, label, value, onPress, showArrow = true, danger = fals
           </Text>
         )}
       </View>
+      {badge !== undefined && badge > 0 && (
+        <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
+          <Text style={styles.badgeText}>{badge}</Text>
+        </View>
+      )}
       {showArrow && (
         <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
       )}
@@ -56,6 +70,12 @@ export function ProfileScreen() {
   const theme = useTheme();
   const { themeMode, setThemeMode } = useThemeContext();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<ProfileNavigationProp>();
+  const { user, isAuthenticated, logout, addresses, paymentMethods } = useAuth();
+  const { showToast } = useToast();
+
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const getThemeModeLabel = (): string => {
     switch (themeMode) {
@@ -77,6 +97,40 @@ export function ProfileScreen() {
     setThemeMode(modes[nextIndex]);
   };
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      setLogoutModalVisible(false);
+      showToast('Déconnexion réussie', 'success');
+    } catch (error) {
+      showToast('Erreur lors de la déconnexion', 'error');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const getUserDisplayName = (): string => {
+    if (!user) return 'Utilisateur';
+    if (user.displayName) return user.displayName;
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    return 'Utilisateur';
+  };
+
+  const getUserEmail = (): string => {
+    return user?.email || 'utilisateur@example.com';
+  };
+
+  const getUserInitials = (): string => {
+    const name = getUserDisplayName();
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView
@@ -93,30 +147,47 @@ export function ProfileScreen() {
             },
           ]}
         >
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => navigation.navigate('EditProfile')}
+          >
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+            ) : (
+              <View
+                style={[
+                  styles.avatar,
+                  { backgroundColor: theme.colors.textInverse },
+                ]}
+              >
+                <Text style={[styles.avatarText, { color: theme.colors.primary }]}>
+                  {getUserInitials()}
+                </Text>
+              </View>
+            )}
             <View
-              style={[
-                styles.avatar,
-                { backgroundColor: theme.colors.textInverse },
-              ]}
-            >
-              <Ionicons name="person" size={40} color={theme.colors.primary} />
-            </View>
-            <TouchableOpacity
               style={[
                 styles.editAvatarButton,
                 { backgroundColor: theme.colors.surface },
               ]}
             >
               <Ionicons name="camera-outline" size={16} color={theme.colors.primary} />
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
           <Text style={[styles.userName, { color: theme.colors.textInverse }]}>
-            Utilisateur
+            {getUserDisplayName()}
           </Text>
           <Text style={[styles.userEmail, { color: theme.colors.textInverse + 'CC' }]}>
-            utilisateur@example.com
+            {getUserEmail()}
           </Text>
+          {user && !user.isEmailVerified && (
+            <TouchableOpacity
+              style={[styles.verifyBadge, { backgroundColor: theme.colors.warning }]}
+            >
+              <Ionicons name="alert-circle" size={14} color="#FFFFFF" />
+              <Text style={styles.verifyBadgeText}>Email non vérifié</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Profile content */}
@@ -126,10 +197,28 @@ export function ProfileScreen() {
             <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
               Mon compte
             </Text>
-            <MenuItem icon="person-outline" label="Modifier le profil" />
-            <MenuItem icon="location-outline" label="Mes adresses" />
-            <MenuItem icon="card-outline" label="Moyens de paiement" />
-            <MenuItem icon="receipt-outline" label="Mes commandes" />
+            <MenuItem
+              icon="person-outline"
+              label="Modifier le profil"
+              onPress={() => navigation.navigate('EditProfile')}
+            />
+            <MenuItem
+              icon="location-outline"
+              label="Mes adresses"
+              value={addresses.length > 0 ? `${addresses.length} adresse(s)` : undefined}
+              onPress={() => navigation.navigate('Addresses')}
+            />
+            <MenuItem
+              icon="card-outline"
+              label="Moyens de paiement"
+              value={paymentMethods.length > 0 ? `${paymentMethods.length} carte(s)` : undefined}
+              onPress={() => navigation.navigate('PaymentMethods')}
+            />
+            <MenuItem
+              icon="receipt-outline"
+              label="Mes commandes"
+              onPress={() => navigation.navigate('Orders')}
+            />
           </Card>
 
           {/* Settings section */}
@@ -137,15 +226,28 @@ export function ProfileScreen() {
             <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
               Paramètres
             </Text>
-            <MenuItem icon="notifications-outline" label="Notifications" />
+            <MenuItem
+              icon="notifications-outline"
+              label="Notifications"
+              onPress={() => navigation.navigate('Notifications')}
+            />
             <MenuItem
               icon="moon-outline"
               label="Apparence"
               value={getThemeModeLabel()}
               onPress={toggleThemeMode}
             />
-            <MenuItem icon="language-outline" label="Langue" value="Français" />
-            <MenuItem icon="shield-outline" label="Confidentialité" />
+            <MenuItem
+              icon="language-outline"
+              label="Langue"
+              value="Français"
+              onPress={() => navigation.navigate('Language')}
+            />
+            <MenuItem
+              icon="lock-closed-outline"
+              label="Sécurité"
+              onPress={() => navigation.navigate('Security')}
+            />
           </Card>
 
           {/* Support section */}
@@ -153,28 +255,77 @@ export function ProfileScreen() {
             <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
               Aide & Support
             </Text>
-            <MenuItem icon="help-circle-outline" label="Centre d'aide" />
-            <MenuItem icon="chatbubble-outline" label="Nous contacter" />
-            <MenuItem icon="document-text-outline" label="Conditions d'utilisation" />
-            <MenuItem icon="lock-closed-outline" label="Politique de confidentialité" />
-          </Card>
-
-          {/* Logout */}
-          <Card variant="outlined" padding="none" style={styles.section}>
             <MenuItem
-              icon="log-out-outline"
-              label="Se déconnecter"
-              showArrow={false}
-              danger
+              icon="help-circle-outline"
+              label="Centre d'aide"
+              onPress={() => navigation.navigate('Help')}
+            />
+            <MenuItem
+              icon="chatbubble-outline"
+              label="Nous contacter"
+              onPress={() => navigation.navigate('Contact')}
+            />
+            <MenuItem
+              icon="document-text-outline"
+              label="Conditions d'utilisation"
+              onPress={() => navigation.navigate('Terms')}
+            />
+            <MenuItem
+              icon="shield-outline"
+              label="Politique de confidentialité"
+              onPress={() => navigation.navigate('Privacy')}
             />
           </Card>
 
+          {/* Logout */}
+          {isAuthenticated && (
+            <Card variant="outlined" padding="none" style={styles.section}>
+              <MenuItem
+                icon="log-out-outline"
+                label="Se déconnecter"
+                showArrow={false}
+                danger
+                onPress={() => setLogoutModalVisible(true)}
+              />
+            </Card>
+          )}
+
           {/* App version */}
           <Text style={[styles.version, { color: theme.colors.textTertiary }]}>
-            Version 1.0.0 (Phase 1 - Foundation)
+            Version 1.0.0 (Phase 2 - Auth & User)
           </Text>
         </View>
       </ScrollView>
+
+      {/* Logout confirmation modal */}
+      <Modal
+        visible={logoutModalVisible}
+        onClose={() => setLogoutModalVisible(false)}
+        title="Se déconnecter"
+        size="sm"
+      >
+        <Text style={[styles.modalText, { color: theme.colors.text }]}>
+          Êtes-vous sûr de vouloir vous déconnecter ?
+        </Text>
+        <View style={styles.modalButtons}>
+          <Button
+            variant="ghost"
+            onPress={() => setLogoutModalVisible(false)}
+            style={{ flex: 1, marginRight: 8 }}
+            disabled={isLoggingOut}
+          >
+            Annuler
+          </Button>
+          <Button
+            variant="danger"
+            onPress={handleLogout}
+            loading={isLoggingOut}
+            style={{ flex: 1, marginLeft: 8 }}
+          >
+            Déconnexion
+          </Button>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -200,6 +351,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  avatarText: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
   editAvatarButton: {
     position: 'absolute',
     bottom: 0,
@@ -222,6 +382,20 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
+  },
+  verifyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginTop: 12,
+  },
+  verifyBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   content: {
     marginTop: -16,
@@ -263,11 +437,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
+  badge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
   version: {
     textAlign: 'center',
     fontSize: 12,
     marginTop: 16,
     marginBottom: 32,
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
   },
 });
 

@@ -1,5 +1,6 @@
 /**
  * Forgot Password Screen
+ * Functional password reset with multi-backend support
  */
 
 import React, { useState } from 'react';
@@ -16,8 +17,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
 import { Button, Input } from '../../components/common';
+import { useToast } from '../../components/common/Toast';
 import { Header } from '../../components/layout';
 import { AuthStackParamList } from '../../navigation/types';
+import { useAuth } from '../../hooks';
+import { isValidEmail } from '../../utils';
 
 type ForgotPasswordNavigationProp = NativeStackNavigationProp<
   AuthStackParamList,
@@ -27,18 +31,48 @@ type ForgotPasswordNavigationProp = NativeStackNavigationProp<
 export function ForgotPasswordScreen() {
   const theme = useTheme();
   const navigation = useNavigation<ForgotPasswordNavigationProp>();
+  const { resetPassword } = useAuth();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+
+  const validate = (): boolean => {
+    if (!email.trim()) {
+      setError('L\'email est requis');
+      return false;
+    }
+    if (!isValidEmail(email)) {
+      setError('Email invalide');
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async () => {
+    if (!validate()) return;
+
     setLoading(true);
-    // TODO: Implement actual password reset logic
-    setTimeout(() => {
+    setError(undefined);
+
+    try {
+      const result = await resetPassword({ email: email.trim().toLowerCase() });
+
+      if (result.success) {
+        setSent(true);
+        showToast('Email de réinitialisation envoyé', 'success');
+      } else {
+        setError(result.error?.message || 'Impossible d\'envoyer l\'email');
+        showToast(result.error?.message || 'Erreur lors de l\'envoi', 'error');
+      }
+    } catch (err) {
+      setError('Une erreur est survenue');
+      showToast('Une erreur est survenue', 'error');
+    } finally {
       setLoading(false);
-      setSent(true);
-    }, 1500);
+    }
   };
 
   if (sent) {
@@ -64,19 +98,40 @@ export function ForgotPasswordScreen() {
             Email envoyé !
           </Text>
           <Text style={[styles.successText, { color: theme.colors.textSecondary }]}>
-            Nous avons envoyé un lien de réinitialisation à{'\n'}
-            <Text style={{ fontWeight: '600' }}>{email}</Text>
+            Si un compte existe avec cette adresse, vous recevrez un email avec les
+            instructions pour réinitialiser votre mot de passe.
+          </Text>
+          <Text
+            style={[
+              styles.emailText,
+              { color: theme.colors.text, marginTop: theme.spacing.md },
+            ]}
+          >
+            {email}
           </Text>
 
-          <Button
-            variant="outline"
-            onPress={() => navigation.navigate('Login')}
-            size="lg"
-            fullWidth
-            style={{ marginTop: 32 }}
-          >
-            Retour à la connexion
-          </Button>
+          <View style={styles.successActions}>
+            <Button
+              variant="primary"
+              onPress={() => navigation.navigate('Login')}
+              size="lg"
+              fullWidth
+            >
+              Retour à la connexion
+            </Button>
+
+            <Button
+              variant="ghost"
+              onPress={() => {
+                setSent(false);
+                setEmail('');
+              }}
+              size="md"
+              style={{ marginTop: theme.spacing.md }}
+            >
+              Essayer une autre adresse
+            </Button>
+          </View>
         </View>
       </View>
     );
@@ -101,24 +156,39 @@ export function ForgotPasswordScreen() {
           ]}
           keyboardShouldPersistTaps="handled"
         >
+          <View
+            style={[
+              styles.iconContainerSmall,
+              { backgroundColor: theme.colors.primaryLight + '20' },
+            ]}
+          >
+            <Ionicons name="key-outline" size={32} color={theme.colors.primary} />
+          </View>
+
           <Text style={[styles.title, { color: theme.colors.text }]}>
-            Réinitialiser le mot de passe
+            Mot de passe oublié ?
           </Text>
           <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Entrez votre adresse email et nous vous enverrons un lien pour
-            réinitialiser votre mot de passe
+            Pas de panique ! Entrez votre adresse email et nous vous enverrons
+            un lien pour réinitialiser votre mot de passe.
           </Text>
 
           <View style={styles.form}>
             <Input
-              label="Email"
+              label="Adresse email"
               placeholder="votre@email.com"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (error) setError(undefined);
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              autoFocus
               leftIcon="mail-outline"
+              error={error}
+              editable={!loading}
             />
           </View>
 
@@ -127,10 +197,18 @@ export function ForgotPasswordScreen() {
             loading={loading}
             size="lg"
             fullWidth
-            disabled={!email.includes('@')}
           >
-            Envoyer le lien
+            Envoyer le lien de réinitialisation
           </Button>
+
+          <Text
+            style={[
+              styles.helpText,
+              { color: theme.colors.textTertiary, marginTop: theme.spacing.lg },
+            ]}
+          >
+            Vous recevrez un email avec un lien sécurisé valable 1 heure.
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -149,18 +227,34 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 24,
   },
+  iconContainerSmall: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    alignSelf: 'center',
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 32,
     lineHeight: 24,
+    textAlign: 'center',
   },
   form: {
     marginBottom: 24,
+  },
+  helpText: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   successContainer: {
     flex: 1,
@@ -180,11 +274,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 12,
+    textAlign: 'center',
   },
   successText: {
     fontSize: 16,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  emailText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  successActions: {
+    width: '100%',
+    marginTop: 32,
   },
 });
 

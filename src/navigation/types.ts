@@ -59,15 +59,21 @@ export type FavoritesStackParamList = {
 export type ProfileStackParamList = {
   ProfileScreen: undefined;
   EditProfile: undefined;
+  ChangePassword: undefined;
   Addresses: undefined;
   AddAddress: { addressId?: string };
+  EditAddress: { addressId: string };
+  PaymentMethods: undefined;
+  AddPaymentMethod: undefined;
   Orders: undefined;
   OrderDetails: { orderId: string };
-  Settings: undefined;
-  NotificationSettings: undefined;
-  LanguageSettings: undefined;
-  PaymentMethods: undefined;
+  Notifications: undefined;
+  Language: undefined;
+  Security: undefined;
   Help: undefined;
+  Contact: undefined;
+  Terms: undefined;
+  Privacy: undefined;
 };
 
 /** Root Stack param list */
