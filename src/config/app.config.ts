@@ -35,7 +35,7 @@ const selfHostedConfig: AppConfig = {
     {
       type: 'selfhosted',
       enabled: true,
-      apiUrl: 'https://nexuserv.duckdns.org/api/auth',
+      apiUrl: 'https://nexuserv.duckdns.org/api',
     },
   ],
   database: {
@@ -46,7 +46,7 @@ const selfHostedConfig: AppConfig = {
   storage: {
     type: 'selfhosted',
     enabled: true,
-    apiUrl: 'https://nexuserv.duckdns.org/api/storage',
+    apiUrl: 'https://nexuserv.duckdns.org/api',
     maxFileSize: 10 * 1024 * 1024, // 10MB
   },
   payments: [
