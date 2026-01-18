@@ -105,9 +105,38 @@ export function createNexusServAuthProvider(
         };
       }
 
+      // Handle different server response formats
+      // Format 1: { data: { user, tokens } }
+      // Format 2: { user, token } or { user, accessToken }
+      // Format 3: { success, user, token }
+      let responseData = data.data || data;
+
+      // Normalize token format if needed
+      if (responseData.token && !responseData.tokens) {
+        responseData = {
+          ...responseData,
+          tokens: {
+            accessToken: responseData.token || responseData.accessToken,
+            refreshToken: responseData.refreshToken,
+            expiresIn: responseData.expiresIn || 3600,
+          },
+        };
+      }
+
+      if (responseData.accessToken && !responseData.tokens) {
+        responseData = {
+          ...responseData,
+          tokens: {
+            accessToken: responseData.accessToken,
+            refreshToken: responseData.refreshToken,
+            expiresIn: responseData.expiresIn || 3600,
+          },
+        };
+      }
+
       return {
         success: true,
-        data: data.data || data,
+        data: responseData,
       };
     } catch (error) {
       const err = error as Error;
