@@ -38,3 +38,16 @@ export {
   useProductReviews,
   useNewsletter,
 } from '../contexts';
+
+// Re-export advanced hooks from contexts (Phase 7)
+export {
+  useImageSearch,
+  useLoyalty,
+  useGamification,
+  useChat,
+  useI18n,
+  useTranslation,
+  useCurrency,
+  usePrice,
+  useRecommendations,
+} from '../contexts';

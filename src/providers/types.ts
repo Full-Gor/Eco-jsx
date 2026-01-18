@@ -2,7 +2,11 @@
  * Provider base types
  */
 
-import { ApiResponse, Unsubscribe, Callback } from '../types/common';
+import { ApiResponse, Unsubscribe, Callback, PaginatedResponse, PaginationParams } from '../types/common';
+
+// Re-export common types for convenience
+export type { ApiResponse, Unsubscribe, Callback, PaginatedResponse };
+export type Pagination = PaginationParams;
 
 /** Base provider interface */
 export interface BaseProvider {

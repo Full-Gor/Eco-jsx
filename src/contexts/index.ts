@@ -33,3 +33,20 @@ export { WishlistProvider, useWishlist } from './WishlistContext';
 export { ReviewProvider, useReviews, useProductReviews } from './ReviewContext';
 
 export { NewsletterProvider, useNewsletter } from './NewsletterContext';
+
+// Phase 7 - Advanced
+export { ImageSearchProvider, useImageSearch } from './ImageSearchContext';
+
+export {
+  GamificationProvider,
+  useLoyalty,
+  useGamification,
+} from './GamificationContext';
+
+export { ChatProvider, useChat } from './ChatContext';
+
+export { I18nProvider, useI18n, useTranslation } from './I18nContext';
+
+export { CurrencyProvider, useCurrency, usePrice } from './CurrencyContext';
+
+export { RecommendationProvider, useRecommendations } from './RecommendationContext';
