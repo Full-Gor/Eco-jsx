@@ -276,9 +276,17 @@ export function createNexusServAuthProvider(
     },
 
     async login(credentials: LoginCredentials): Promise<ApiResponse<AuthSession>> {
+      // Transform credentials to match server format
+      // Server expects: { userId, password } or { email, password }
+      const serverCredentials = {
+        userId: credentials.email || credentials.userId,
+        email: credentials.email,
+        password: credentials.password,
+      };
+
       const result = await apiRequest<AuthSession>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify(credentials),
+        body: JSON.stringify(serverCredentials),
       });
 
       if (result.success && result.data) {
