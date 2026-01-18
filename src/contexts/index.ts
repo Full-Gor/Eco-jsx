@@ -50,3 +50,8 @@ export { I18nProvider, useI18n, useTranslation } from './I18nContext';
 export { CurrencyProvider, useCurrency, usePrice } from './CurrencyContext';
 
 export { RecommendationProvider, useRecommendations } from './RecommendationContext';
+
+// Phase 8 - Marketplace
+export { SellerProvider, useSeller } from './SellerContext';
+
+export { SellerDashboardProvider, useSellerDashboard } from './SellerDashboardContext';

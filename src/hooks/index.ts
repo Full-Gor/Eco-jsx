@@ -51,3 +51,6 @@ export {
   usePrice,
   useRecommendations,
 } from '../contexts';
+
+// Re-export marketplace hooks from contexts (Phase 8)
+export { useSeller, useSellerDashboard } from '../contexts';
