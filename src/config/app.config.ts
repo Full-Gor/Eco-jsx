@@ -17,7 +17,7 @@ const selfHostedConfig: AppConfig = {
     version: '1.0.0',
     bundleId: 'com.myecommerce.app',
   },
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: 'https://nexuserv.duckdns.org/api',
   features: {
     wishlist: true,
     reviews: true,
@@ -35,18 +35,18 @@ const selfHostedConfig: AppConfig = {
     {
       type: 'selfhosted',
       enabled: true,
-      apiUrl: 'http://localhost:3000/api/auth',
+      apiUrl: 'https://nexuserv.duckdns.org/api/auth',
     },
   ],
   database: {
     type: 'selfhosted',
     enabled: true,
-    apiUrl: 'http://localhost:3000/api',
+    apiUrl: 'https://nexuserv.duckdns.org/api',
   },
   storage: {
     type: 'selfhosted',
     enabled: true,
-    apiUrl: 'http://localhost:3000/api/storage',
+    apiUrl: 'https://nexuserv.duckdns.org/api/storage',
     maxFileSize: 10 * 1024 * 1024, // 10MB
   },
   payments: [
@@ -60,14 +60,14 @@ const selfHostedConfig: AppConfig = {
     {
       type: 'ntfy',
       enabled: true,
-      serverUrl: 'http://localhost:8080',
+      serverUrl: 'https://nexuserv.duckdns.org',
       topic: 'ecommerce-notifications',
     },
   ],
   newsletter: {
     type: 'listmonk',
     enabled: true,
-    apiUrl: 'http://localhost:9000/api',
+    apiUrl: 'https://nexuserv.duckdns.org/api',
     username: '',
     password: '',
     listId: 1,
@@ -83,7 +83,7 @@ const selfHostedConfig: AppConfig = {
   search: {
     type: 'meilisearch',
     enabled: true,
-    host: 'http://localhost:7700',
+    host: 'https://nexuserv.duckdns.org',
     apiKey: '',
     indexName: 'products',
   },
