@@ -29,3 +29,12 @@ export { useCart, useCheckout } from '../contexts';
 
 // Re-export order hooks from contexts
 export { useOrders, useOrder, useTracking, useReturn } from '../contexts';
+
+// Re-export engagement hooks from contexts
+export {
+  useNotifications,
+  useWishlist,
+  useReviews,
+  useProductReviews,
+  useNewsletter,
+} from '../contexts';

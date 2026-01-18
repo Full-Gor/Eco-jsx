@@ -25,3 +25,11 @@ export {
   useTracking,
   useReturn,
 } from './OrderContext';
+
+export { NotificationProvider, useNotifications } from './NotificationContext';
+
+export { WishlistProvider, useWishlist } from './WishlistContext';
+
+export { ReviewProvider, useReviews, useProductReviews } from './ReviewContext';
+
+export { NewsletterProvider, useNewsletter } from './NewsletterContext';

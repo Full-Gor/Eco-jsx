@@ -16,3 +16,9 @@ export type {
   PushTokenCallback,
   NotificationProviderOptions,
 } from './NotificationProvider.interface';
+
+export { createNtfyNotificationProvider } from './NtfyNotificationProvider';
+export type { NtfyConfig } from './NtfyNotificationProvider';
+
+export { createFCMNotificationProvider } from './FCMNotificationProvider';
+export type { FCMConfig } from './FCMNotificationProvider';
