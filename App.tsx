@@ -12,7 +12,7 @@ import { StyleSheet, View, ActivityIndicator } from 'react-native';
 
 import { ThemeProvider, useTheme } from './src/theme';
 import { ToastProvider } from './src/components/common/Toast';
-import { AuthProvider, useAuth } from './src/contexts';
+import { AuthProvider, useAuth, CatalogProvider, CartProvider } from './src/contexts';
 import { RootNavigator } from './src/navigation';
 
 /** App content with theme and auth access */
@@ -71,7 +71,11 @@ function AppContent() {
 function AppWithAuth() {
   return (
     <AuthProvider>
-      <AppContent />
+      <CatalogProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </CatalogProvider>
     </AuthProvider>
   );
 }

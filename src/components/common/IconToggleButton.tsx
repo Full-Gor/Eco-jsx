@@ -64,15 +64,15 @@ export function IconToggleButton({
     onPress();
   };
 
-  // Interpolations for 3D effect
+  // Interpolations for 3D effect - more pronounced
   const translateX = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [-2, 2],
+    outputRange: [-4, 4],
   });
 
   const rotateY = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['-12deg', '12deg'],
+    outputRange: ['-18deg', '18deg'],
   });
 
   const leftIconOpacity = animatedValue.interpolate({
@@ -97,12 +97,12 @@ export function IconToggleButton({
 
   const leftShadowRotate = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '-8deg'],
+    outputRange: ['0deg', '-12deg'],
   });
 
   const rightShadowRotate = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['8deg', '0deg'],
+    outputRange: ['12deg', '0deg'],
   });
 
   // Theme colors
@@ -210,7 +210,7 @@ export function IconToggleButton({
                 borderColor: colors.optionsBorder,
                 transform: [
                   { translateX },
-                  { perspective: 400 },
+                  { perspective: 250 },
                   { rotateY },
                 ],
               },
@@ -359,12 +359,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderWidth: 1,
-    padding: 3,
+    padding: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 6,
   },
   innerTrack: {
     flex: 1,
