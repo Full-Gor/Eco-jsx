@@ -222,12 +222,12 @@ export function ProfileScreen() {
           </Card>
 
           {/* Settings section - Icon buttons in 3D style */}
-          <Card variant="outlined" padding="md" style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary, paddingHorizontal: 0 }]}>
+          <Card variant="outlined" padding="none" style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
               Paramètres
             </Text>
-            <View style={styles.settingsButtonsRow}>
-              {/* Notifications */}
+            {/* Notifications */}
+            <View style={styles.settingsRow}>
               <IconToggleButton
                 iconLeft="notifications-off-outline"
                 iconRight="notifications-outline"
@@ -235,7 +235,9 @@ export function ProfileScreen() {
                 onPress={() => navigation.navigate('Notifications')}
                 size="md"
               />
-              {/* Theme */}
+            </View>
+            {/* Theme */}
+            <View style={styles.settingsRow}>
               <IconToggleButton
                 iconLeft="sunny-outline"
                 iconRight="moon-outline"
@@ -243,7 +245,9 @@ export function ProfileScreen() {
                 onPress={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
                 size="md"
               />
-              {/* Language */}
+            </View>
+            {/* Language */}
+            <View style={styles.settingsRow}>
               <IconToggleButton
                 iconLeft="language-outline"
                 iconRight="globe-outline"
@@ -251,7 +255,9 @@ export function ProfileScreen() {
                 onPress={() => navigation.navigate('Language')}
                 size="md"
               />
-              {/* Security */}
+            </View>
+            {/* Security */}
+            <View style={styles.settingsRow}>
               <IconToggleButton
                 iconLeft="lock-open-outline"
                 iconRight="lock-closed-outline"
@@ -477,12 +483,12 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
   },
-  settingsButtonsRow: {
+  settingsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 8,
-    gap: 8,
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
 });
 

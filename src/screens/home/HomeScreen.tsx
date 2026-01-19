@@ -6,12 +6,11 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme, useThemeContext } from '../../theme';
-import { Card, ThemeToggle } from '../../components/common';
+import { useTheme } from '../../theme';
+import { Card } from '../../components/common';
 
 export function HomeScreen() {
   const theme = useTheme();
-  const { toggleTheme, themeMode } = useThemeContext();
   const insets = useSafeAreaInsets();
 
   return (
@@ -27,26 +26,14 @@ export function HomeScreen() {
           },
         ]}
       >
-        <View>
-          <Text style={[styles.greeting, { color: theme.colors.textSecondary }]}>
-            Bonjour 👋
-          </Text>
-          <Text style={[styles.title, { color: theme.colors.text }]}>
-            Découvrez nos produits
-          </Text>
-        </View>
-        <View style={styles.headerActions}>
-          <ThemeToggle
-            isDark={theme.isDark}
-            onToggle={toggleTheme}
-            size="sm"
-          />
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.colors.surfaceVariant }]}
-          >
-            <Ionicons name="notifications-outline" size={22} color={theme.colors.text} />
-          </TouchableOpacity>
-        </View>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          Découvrez nos produits
+        </Text>
+        <TouchableOpacity
+          style={[styles.iconButton, { backgroundColor: theme.colors.surfaceVariant }]}
+        >
+          <Ionicons name="notifications-outline" size={22} color={theme.colors.text} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -181,17 +168,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 16,
   },
-  greeting: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
   title: {
     fontSize: 22,
     fontWeight: '700',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
   },
   iconButton: {
     width: 40,
