@@ -7,7 +7,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemeContext } from '../../theme';
-import { Card } from '../../components/common';
+import { Card, ThemeToggle } from '../../components/common';
 
 export function HomeScreen() {
   const theme = useTheme();
@@ -36,16 +36,11 @@ export function HomeScreen() {
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity
-            onPress={toggleTheme}
-            style={[styles.iconButton, { backgroundColor: theme.colors.surfaceVariant }]}
-          >
-            <Ionicons
-              name={theme.isDark ? 'sunny-outline' : 'moon-outline'}
-              size={22}
-              color={theme.colors.text}
-            />
-          </TouchableOpacity>
+          <ThemeToggle
+            isDark={theme.isDark}
+            onToggle={toggleTheme}
+            size="sm"
+          />
           <TouchableOpacity
             style={[styles.iconButton, { backgroundColor: theme.colors.surfaceVariant }]}
           >
