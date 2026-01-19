@@ -10,7 +10,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemeContext } from '../../theme';
-import { Card, Modal, Button, ThemeToggle } from '../../components/common';
+import { Card, Modal, Button, IconToggleButton, NavButton } from '../../components/common';
 import { useToast } from '../../components/common/Toast';
 import { useAuth } from '../../hooks';
 import { ProfileStackParamList } from '../../navigation/types';
@@ -221,52 +221,45 @@ export function ProfileScreen() {
             />
           </Card>
 
-          {/* Settings section */}
-          <Card variant="outlined" padding="none" style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>
+          {/* Settings section - Icon buttons in 3D style */}
+          <Card variant="outlined" padding="md" style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary, paddingHorizontal: 0 }]}>
               Paramètres
             </Text>
-            <MenuItem
-              icon="notifications-outline"
-              label="Notifications"
-              onPress={() => navigation.navigate('Notifications')}
-            />
-            {/* Theme Toggle */}
-            <View style={styles.themeRow}>
-              <View style={styles.themeRowLeft}>
-                <View
-                  style={[
-                    styles.menuIcon,
-                    { backgroundColor: theme.colors.primary + '15' },
-                  ]}
-                >
-                  <Ionicons
-                    name={theme.isDark ? 'moon' : 'sunny-outline'}
-                    size={20}
-                    color={theme.colors.primary}
-                  />
-                </View>
-                <Text style={[styles.menuLabel, { color: theme.colors.text }]}>
-                  Thème {theme.isDark ? 'sombre' : 'clair'}
-                </Text>
-              </View>
-              <ThemeToggle
-                isDark={theme.isDark}
-                onToggle={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
-                size="sm"
+            <View style={styles.settingsButtonsRow}>
+              {/* Notifications */}
+              <IconToggleButton
+                iconLeft="notifications-off-outline"
+                iconRight="notifications-outline"
+                value={true}
+                onPress={() => navigation.navigate('Notifications')}
+                size="md"
+              />
+              {/* Theme */}
+              <IconToggleButton
+                iconLeft="sunny-outline"
+                iconRight="moon-outline"
+                value={theme.isDark}
+                onPress={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
+                size="md"
+              />
+              {/* Language */}
+              <IconToggleButton
+                iconLeft="language-outline"
+                iconRight="globe-outline"
+                value={false}
+                onPress={() => navigation.navigate('Language')}
+                size="md"
+              />
+              {/* Security */}
+              <IconToggleButton
+                iconLeft="lock-open-outline"
+                iconRight="lock-closed-outline"
+                value={true}
+                onPress={() => navigation.navigate('Security')}
+                size="md"
               />
             </View>
-            <MenuItem
-              icon="language-outline"
-              label="Langue"
-              value="Français"
-              onPress={() => navigation.navigate('Language')}
-            />
-            <MenuItem
-              icon="lock-closed-outline"
-              label="Sécurité"
-              onPress={() => navigation.navigate('Security')}
-            />
           </Card>
 
           {/* Support section */}
@@ -484,16 +477,12 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
   },
-  themeRow: {
+  settingsButtonsRow: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  themeRowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingVertical: 8,
+    gap: 8,
   },
 });
 

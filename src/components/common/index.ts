@@ -24,6 +24,8 @@ export { Skeleton } from './Skeleton';
 
 export { Toggle, ThemeToggle } from './Toggle';
 
+export { IconToggleButton, NavButton } from './IconToggleButton';
+
 // Re-export from layout
 export { Header } from '../layout/Header';
 export type { HeaderProps } from '../layout/Header';
