@@ -276,11 +276,10 @@ export function createNexusServAuthProvider(
     },
 
     async login(credentials: LoginCredentials): Promise<ApiResponse<AuthSession>> {
-      // Transform credentials to match server format
-      // Server expects: { userId, password } or { email, password }
+      // Server expects: { userId, password }
+      // Use email as userId if userId not provided
       const serverCredentials = {
-        userId: credentials.email || credentials.userId,
-        email: credentials.email,
+        userId: credentials.userId || credentials.email,
         password: credentials.password,
       };
 
@@ -302,9 +301,18 @@ export function createNexusServAuthProvider(
     },
 
     async register(data: RegisterData): Promise<ApiResponse<AuthSession>> {
+      // Server expects: { userId, email, password, name }
+      // Use email as userId if userId not provided
+      const serverData = {
+        userId: data.userId || data.email,
+        email: data.email,
+        password: data.password,
+        name: data.name || data.firstName ? `${data.firstName || ''} ${data.lastName || ''}`.trim() : undefined,
+      };
+
       const result = await apiRequest<AuthSession>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(serverData),
       });
 
       if (result.success && result.data) {
