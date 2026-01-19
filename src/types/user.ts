@@ -48,7 +48,8 @@ export interface NotificationPreferences {
 
 /** Login credentials */
 export interface LoginCredentials {
-  email: string;
+  email?: string;
+  userId?: string;
   password: string;
   rememberMe?: boolean;
 }
@@ -56,11 +57,13 @@ export interface LoginCredentials {
 /** Registration data */
 export interface RegisterData {
   email: string;
+  userId?: string;
   password: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
-  acceptTerms: boolean;
+  acceptTerms?: boolean;
   newsletter?: boolean;
 }
 
