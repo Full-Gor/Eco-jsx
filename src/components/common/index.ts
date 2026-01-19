@@ -22,6 +22,8 @@ export type { ToastMessage, ToastType } from './Toast';
 
 export { Skeleton } from './Skeleton';
 
+export { Toggle, ThemeToggle } from './Toggle';
+
 // Re-export from layout
 export { Header } from '../layout/Header';
 export type { HeaderProps } from '../layout/Header';
