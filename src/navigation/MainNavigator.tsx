@@ -3,13 +3,14 @@
  */
 
 import React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { useTheme } from '../theme';
 
-// Placeholder screens - will be implemented in later phases
+// Screens
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { CategoriesScreen } from '../screens/categories/CategoriesScreen';
 import { CartScreen } from '../screens/cart/CartScreen';
@@ -48,6 +49,11 @@ const tabLabels: Record<keyof MainTabParamList, string> = {
 
 export function MainNavigator() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // Calculate tab bar height - add extra padding for Android navigation bar
+  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 24);
+  const tabBarHeight = 60 + bottomPadding;
 
   return (
     <Tab.Navigator
@@ -58,20 +64,30 @@ export function MainNavigator() {
           backgroundColor: theme.colors.tabBar,
           borderTopColor: theme.colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: theme.sizing.tabBar + (Platform.OS === 'ios' ? 20 : 0),
-          paddingTop: theme.spacing.xs,
-          paddingBottom: Platform.OS === 'ios' ? 20 : theme.spacing.xs,
+          height: tabBarHeight,
+          paddingTop: 8,
+          paddingBottom: bottomPadding,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
         tabBarActiveTintColor: theme.colors.tabBarActive,
         tabBarInactiveTintColor: theme.colors.tabBarInactive,
         tabBarLabelStyle: {
-          ...theme.typography.labelSmall,
+          fontSize: 11,
+          fontWeight: '500',
           marginTop: 2,
         },
         tabBarIcon: ({ focused, color, size }: TabIconProps) => (
           <Ionicons
             name={getTabIcon(route.name, focused)}
-            size={22}
+            size={24}
             color={color}
           />
         ),
