@@ -2,25 +2,24 @@
  * Root Navigator
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
 import { useTheme } from '../theme';
+import { useAuth } from '../hooks';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-interface RootNavigatorProps {
-  /** Override initial auth state (for testing) */
-  initialAuthenticated?: boolean;
-}
-
-export function RootNavigator({ initialAuthenticated = false }: RootNavigatorProps) {
+export function RootNavigator() {
   const theme = useTheme();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // TODO: Replace with actual auth state from AuthProvider
-  const [isAuthenticated] = useState(initialAuthenticated);
+  // Show nothing while checking auth state
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <Stack.Navigator
