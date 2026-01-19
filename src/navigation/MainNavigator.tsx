@@ -52,9 +52,8 @@ export function MainNavigator() {
   const insets = useSafeAreaInsets();
 
   // Calculate tab bar height - add extra padding for Android navigation bar
-  // Use larger padding for Android to ensure tabs are well above system navigation buttons
-  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 80);
-  const tabBarHeight = 75 + bottomPadding;
+  const bottomPadding = Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 40);
+  const tabBarHeight = 60 + bottomPadding;
 
   return (
     <Tab.Navigator
