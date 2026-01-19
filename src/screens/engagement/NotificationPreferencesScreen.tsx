@@ -9,12 +9,13 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Switch,
   TouchableOpacity,
   Alert,
 } from 'react-native';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { PushNotificationPreferences } from '../../types/engagement';
+import { Toggle } from '../../components/common';
+import { useTheme } from '../../theme';
 
 /** Preference item component */
 interface PreferenceItemProps {
@@ -32,28 +33,30 @@ function PreferenceItem({
   onValueChange,
   disabled = false,
 }: PreferenceItemProps) {
+  const theme = useTheme();
+
   return (
     <View style={[styles.preferenceItem, disabled && styles.disabledItem]}>
       <View style={styles.preferenceContent}>
-        <Text style={[styles.preferenceTitle, disabled && styles.disabledText]}>
+        <Text style={[styles.preferenceTitle, { color: theme.colors.text }, disabled && styles.disabledText]}>
           {title}
         </Text>
-        <Text style={[styles.preferenceDescription, disabled && styles.disabledText]}>
+        <Text style={[styles.preferenceDescription, { color: theme.colors.textSecondary }, disabled && styles.disabledText]}>
           {description}
         </Text>
       </View>
-      <Switch
+      <Toggle
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-        thumbColor={value ? '#3B82F6' : '#F3F4F6'}
+        size="sm"
       />
     </View>
   );
 }
 
 export function NotificationPreferencesScreen() {
+  const theme = useTheme();
   const {
     preferences,
     updatePreferences,
@@ -114,49 +117,48 @@ export function NotificationPreferencesScreen() {
   const isDisabled = !preferences.enabled || !hasPermission;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Permission Banner */}
       {!hasPermission && (
         <TouchableOpacity
-          style={styles.permissionBanner}
+          style={[styles.permissionBanner, { backgroundColor: theme.colors.warningBackground, borderColor: theme.colors.warning }]}
           onPress={handleRequestPermission}
         >
           <View style={styles.permissionContent}>
-            <Text style={styles.permissionTitle}>Enable Notifications</Text>
-            <Text style={styles.permissionDescription}>
-              Tap to enable notifications and stay updated on your orders
+            <Text style={[styles.permissionTitle, { color: theme.colors.warning }]}>Activer les notifications</Text>
+            <Text style={[styles.permissionDescription, { color: theme.colors.warning }]}>
+              Appuyez pour activer les notifications et rester informé de vos commandes
             </Text>
           </View>
-          <Text style={styles.permissionArrow}>arrow-right</Text>
+          <Text style={[styles.permissionArrow, { color: theme.colors.warning }]}>→</Text>
         </TouchableOpacity>
       )}
 
       {/* Master Toggle */}
       <View style={styles.section}>
-        <View style={styles.masterToggle}>
+        <View style={[styles.masterToggle, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.masterContent}>
-            <Text style={styles.masterTitle}>Push Notifications</Text>
-            <Text style={styles.masterDescription}>
-              Receive notifications about orders, promotions, and more
+            <Text style={[styles.masterTitle, { color: theme.colors.text }]}>Notifications Push</Text>
+            <Text style={[styles.masterDescription, { color: theme.colors.textSecondary }]}>
+              Recevez des notifications sur vos commandes, promotions et plus
             </Text>
           </View>
-          <Switch
+          <Toggle
             value={preferences.enabled && hasPermission}
             onValueChange={handleMasterToggle}
-            trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-            thumbColor={preferences.enabled ? '#3B82F6' : '#F3F4F6'}
             disabled={isUpdating}
+            size="sm"
           />
         </View>
       </View>
 
       {/* Order Notifications */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Orders</Text>
-        <View style={styles.sectionContent}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Commandes</Text>
+        <View style={[styles.sectionContent, { backgroundColor: theme.colors.surface }]}>
           <PreferenceItem
-            title="Order Updates"
-            description="Status changes, shipping updates, and delivery confirmations"
+            title="Mises à jour de commandes"
+            description="Changements de statut, mises à jour d'expédition et confirmations de livraison"
             value={preferences.orders}
             onValueChange={(value) => handleToggle('orders', value)}
             disabled={isDisabled}
@@ -166,19 +168,19 @@ export function NotificationPreferencesScreen() {
 
       {/* Marketing Notifications */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Promotions & Offers</Text>
-        <View style={styles.sectionContent}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Promotions & Offres</Text>
+        <View style={[styles.sectionContent, { backgroundColor: theme.colors.surface }]}>
           <PreferenceItem
             title="Promotions"
-            description="Sales, discounts, and exclusive offers"
+            description="Soldes, remises et offres exclusives"
             value={preferences.promotions}
             onValueChange={(value) => handleToggle('promotions', value)}
             disabled={isDisabled}
           />
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
           <PreferenceItem
-            title="New Arrivals"
-            description="Be the first to know about new products"
+            title="Nouveautés"
+            description="Soyez le premier à découvrir les nouveaux produits"
             value={preferences.newArrivals}
             onValueChange={(value) => handleToggle('newArrivals', value)}
             disabled={isDisabled}
@@ -188,19 +190,19 @@ export function NotificationPreferencesScreen() {
 
       {/* Wishlist Notifications */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Wishlist Alerts</Text>
-        <View style={styles.sectionContent}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Alertes Favoris</Text>
+        <View style={[styles.sectionContent, { backgroundColor: theme.colors.surface }]}>
           <PreferenceItem
-            title="Price Drops"
-            description="Get notified when items in your wishlist go on sale"
+            title="Baisses de prix"
+            description="Soyez notifié quand les articles de vos favoris sont en solde"
             value={preferences.priceDrops}
             onValueChange={(value) => handleToggle('priceDrops', value)}
             disabled={isDisabled}
           />
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
           <PreferenceItem
-            title="Back in Stock"
-            description="Know when sold-out items become available again"
+            title="De retour en stock"
+            description="Sachez quand les articles épuisés redeviennent disponibles"
             value={preferences.backInStock}
             onValueChange={(value) => handleToggle('backInStock', value)}
             disabled={isDisabled}
@@ -210,11 +212,11 @@ export function NotificationPreferencesScreen() {
 
       {/* Support */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Support</Text>
-        <View style={styles.sectionContent}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Support</Text>
+        <View style={[styles.sectionContent, { backgroundColor: theme.colors.surface }]}>
           <PreferenceItem
             title="Messages"
-            description="Replies from customer support"
+            description="Réponses du service client"
             value={preferences.messages}
             onValueChange={(value) => handleToggle('messages', value)}
             disabled={isDisabled}
@@ -224,29 +226,29 @@ export function NotificationPreferencesScreen() {
 
       {/* Quiet Hours */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quiet Hours</Text>
-        <View style={styles.sectionContent}>
+        <Text style={[styles.sectionTitle, { color: theme.colors.textSecondary }]}>Heures silencieuses</Text>
+        <View style={[styles.sectionContent, { backgroundColor: theme.colors.surface }]}>
           <PreferenceItem
-            title="Enable Quiet Hours"
-            description="Pause non-urgent notifications during set hours"
+            title="Activer les heures silencieuses"
+            description="Suspendre les notifications non urgentes pendant les heures définies"
             value={preferences.quietHoursEnabled}
             onValueChange={(value) => handleToggle('quietHoursEnabled', value)}
             disabled={isDisabled}
           />
           {preferences.quietHoursEnabled && (
             <>
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
               <View style={styles.timeSettings}>
-                <TouchableOpacity style={styles.timePicker}>
-                  <Text style={styles.timeLabel}>Start</Text>
-                  <Text style={styles.timeValue}>
+                <TouchableOpacity style={[styles.timePicker, { backgroundColor: theme.colors.backgroundSecondary }]}>
+                  <Text style={[styles.timeLabel, { color: theme.colors.textSecondary }]}>Début</Text>
+                  <Text style={[styles.timeValue, { color: theme.colors.text }]}>
                     {preferences.quietHoursStart || '22:00'}
                   </Text>
                 </TouchableOpacity>
-                <Text style={styles.timeSeparator}>to</Text>
-                <TouchableOpacity style={styles.timePicker}>
-                  <Text style={styles.timeLabel}>End</Text>
-                  <Text style={styles.timeValue}>
+                <Text style={[styles.timeSeparator, { color: theme.colors.textSecondary }]}>à</Text>
+                <TouchableOpacity style={[styles.timePicker, { backgroundColor: theme.colors.backgroundSecondary }]}>
+                  <Text style={[styles.timeLabel, { color: theme.colors.textSecondary }]}>Fin</Text>
+                  <Text style={[styles.timeValue, { color: theme.colors.text }]}>
                     {preferences.quietHoursEnd || '08:00'}
                   </Text>
                 </TouchableOpacity>
@@ -258,9 +260,9 @@ export function NotificationPreferencesScreen() {
 
       {/* Info Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Order notifications cannot be completely disabled to ensure you receive
-          important updates about your purchases.
+        <Text style={[styles.footerText, { color: theme.colors.textTertiary }]}>
+          Les notifications de commandes ne peuvent pas être complètement désactivées pour vous assurer de recevoir
+          les mises à jour importantes concernant vos achats.
         </Text>
       </View>
     </ScrollView>
@@ -270,18 +272,15 @@ export function NotificationPreferencesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   permissionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF3C7',
     padding: 16,
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FCD34D',
   },
   permissionContent: {
     flex: 1,
@@ -289,16 +288,13 @@ const styles = StyleSheet.create({
   permissionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#92400E',
     marginBottom: 4,
   },
   permissionDescription: {
     fontSize: 14,
-    color: '#B45309',
   },
   permissionArrow: {
     fontSize: 20,
-    color: '#B45309',
     marginLeft: 12,
   },
   section: {
@@ -308,21 +304,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6B7280',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 8,
     paddingHorizontal: 4,
   },
   sectionContent: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     overflow: 'hidden',
   },
   masterToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
   },
@@ -333,12 +326,10 @@ const styles = StyleSheet.create({
   masterTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#111827',
     marginBottom: 4,
   },
   masterDescription: {
     fontSize: 14,
-    color: '#6B7280',
     lineHeight: 20,
   },
   preferenceItem: {
@@ -353,23 +344,20 @@ const styles = StyleSheet.create({
   preferenceTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#111827',
     marginBottom: 4,
   },
   preferenceDescription: {
     fontSize: 14,
-    color: '#6B7280',
     lineHeight: 20,
   },
   disabledItem: {
     opacity: 0.5,
   },
   disabledText: {
-    color: '#9CA3AF',
+    opacity: 0.6,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
     marginHorizontal: 16,
   },
   timeSettings: {
@@ -382,23 +370,19 @@ const styles = StyleSheet.create({
   timePicker: {
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#F3F4F6',
     borderRadius: 8,
     minWidth: 80,
   },
   timeLabel: {
     fontSize: 12,
-    color: '#6B7280',
     marginBottom: 4,
   },
   timeValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
   },
   timeSeparator: {
     fontSize: 14,
-    color: '#6B7280',
   },
   footer: {
     padding: 16,
@@ -407,7 +391,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 13,
-    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 18,
   },
