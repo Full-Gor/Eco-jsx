@@ -10,7 +10,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemeContext } from '../../theme';
-import { Card, Modal, Button } from '../../components/common';
+import { Card, Modal, Button, ThemeToggle } from '../../components/common';
 import { useToast } from '../../components/common/Toast';
 import { useAuth } from '../../hooks';
 import { ProfileStackParamList } from '../../navigation/types';
@@ -231,12 +231,31 @@ export function ProfileScreen() {
               label="Notifications"
               onPress={() => navigation.navigate('Notifications')}
             />
-            <MenuItem
-              icon="moon-outline"
-              label="Apparence"
-              value={getThemeModeLabel()}
-              onPress={toggleThemeMode}
-            />
+            {/* Theme Toggle */}
+            <View style={styles.themeRow}>
+              <View style={styles.themeRowLeft}>
+                <View
+                  style={[
+                    styles.menuIcon,
+                    { backgroundColor: theme.colors.primary + '15' },
+                  ]}
+                >
+                  <Ionicons
+                    name={theme.isDark ? 'moon' : 'sunny-outline'}
+                    size={20}
+                    color={theme.colors.primary}
+                  />
+                </View>
+                <Text style={[styles.menuLabel, { color: theme.colors.text }]}>
+                  Thème {theme.isDark ? 'sombre' : 'clair'}
+                </Text>
+              </View>
+              <ThemeToggle
+                isDark={theme.isDark}
+                onToggle={() => setThemeMode(theme.isDark ? 'light' : 'dark')}
+                size="sm"
+              />
+            </View>
             <MenuItem
               icon="language-outline"
               label="Langue"
@@ -464,6 +483,17 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: 'row',
+  },
+  themeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  themeRowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 
