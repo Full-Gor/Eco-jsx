@@ -1,40 +1,45 @@
 /**
- * Splash Screen with Wave Animation
- * Displays on app launch with a ripple/wave effect
+ * Splash Screen with Neumorphic Wave Animation
+ * Based on CSS neumorphism with dual shadows
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
   Animated,
   Dimensions,
   StatusBar,
+  Easing,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_WAVE_SIZE = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2.5;
+
+// Neumorphic colors
+const COLORS = {
+  base: '#55b9f3',
+  lighten: '#62d5ff',
+  darken: '#489dcf',
+  white: '#c8deeb',
+};
 
 interface SplashScreenProps {
   onAnimationComplete: () => void;
 }
 
 export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
-  // Animation values
-  const buttonScale = useRef(new Animated.Value(1)).current;
-  const buttonShadowOpacity = useRef(new Animated.Value(1)).current;
-  const buttonInsetOpacity = useRef(new Animated.Value(0)).current;
-  const waveScale = useRef(new Animated.Value(0)).current;
-  const waveOpacity = useRef(new Animated.Value(0)).current;
-  const innerWaveScale = useRef(new Animated.Value(0)).current;
+  const [isPressed, setIsPressed] = useState(false);
+  const [showWave, setShowWave] = useState(false);
 
-  // Colors
-  const baseColor = '#55b9f3';
-  const darkenColor = '#489dcf';
-  const lightenColor = '#62d5ff';
+  // Animation values
+  const waveSize = useRef(new Animated.Value(40)).current;
+  const innerWaveSize = useRef(new Animated.Value(0)).current;
+  const waveOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Start animation sequence after a short delay
+    // Start animation after a short delay
     const timer = setTimeout(() => {
       startAnimation();
     }, 500);
@@ -43,136 +48,191 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
   }, []);
 
   const startAnimation = () => {
-    // Phase 1: Button press animation (inset effect)
-    Animated.parallel([
-      Animated.timing(buttonScale, {
-        toValue: 0.95,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonShadowOpacity, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonInsetOpacity, {
+    // Phase 1: Button press (inset effect)
+    setIsPressed(true);
+
+    // Phase 2: Start wave after button press
+    setTimeout(() => {
+      setShowWave(true);
+
+      // Fade in wave
+      Animated.timing(waveOpacity, {
         toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // Phase 2: Wave expansion
-      Animated.parallel([
-        // Wave grows
-        Animated.timing(waveOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(waveScale, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        // Inner wave grows slightly delayed
-        Animated.sequence([
-          Animated.delay(100),
-          Animated.timing(innerWaveScale, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]).start(() => {
-        // Phase 3: Fade out and complete
+        duration: 400,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.ease),
+      }).start();
+
+      // Grow outer wave
+      Animated.timing(waveSize, {
+        toValue: MAX_WAVE_SIZE,
+        duration: 3000,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.ease),
+      }).start();
+
+      // Grow inner wave (slightly delayed, creates ring effect)
+      Animated.timing(innerWaveSize, {
+        toValue: MAX_WAVE_SIZE - 40,
+        duration: 3000,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.ease),
+      }).start();
+
+      // Fade out and complete
+      setTimeout(() => {
         Animated.timing(waveOpacity, {
           toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
+          duration: 800,
+          useNativeDriver: false,
         }).start(() => {
           onAnimationComplete();
         });
-      });
-    });
+      }, 2500);
+    }, 300);
   };
 
-  // Interpolate wave size
-  const waveSize = waveScale.interpolate({
-    inputRange: [0, 1],
-    outputRange: [40, MAX_WAVE_SIZE],
-  });
-
-  const innerWaveSize = innerWaveScale.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, MAX_WAVE_SIZE - 40],
-  });
+  const buttonSize = 60;
 
   return (
-    <View style={[styles.container, { backgroundColor: baseColor }]}>
-      <StatusBar barStyle="light-content" backgroundColor={baseColor} />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.base} />
 
       {/* Wave effect */}
-      <Animated.View
-        style={[
-          styles.wave,
-          {
-            opacity: waveOpacity,
-            width: waveSize,
-            height: waveSize,
-            borderRadius: Animated.divide(waveSize, 2),
-            shadowColor: darkenColor,
-          },
-        ]}
-      >
-        {/* Inner wave (creates the ring effect) */}
+      {showWave && (
         <Animated.View
           style={[
-            styles.innerWave,
+            styles.waveContainer,
             {
-              width: innerWaveSize,
-              height: innerWaveSize,
-              borderRadius: Animated.divide(innerWaveSize, 2),
-              backgroundColor: baseColor,
+              width: waveSize,
+              height: waveSize,
+              opacity: waveOpacity,
             },
           ]}
-        />
-      </Animated.View>
+        >
+          {/* Outer wave - neumorphic ring */}
+          <Animated.View
+            style={[
+              styles.waveOuter,
+              {
+                width: waveSize,
+                height: waveSize,
+                borderRadius: Animated.divide(waveSize, 2),
+              },
+            ]}
+          >
+            {/* Light shadow (top-left) */}
+            <View style={[styles.waveShadowLight, { backgroundColor: COLORS.lighten }]} />
+            {/* Dark shadow (bottom-right) */}
+            <View style={[styles.waveShadowDark, { backgroundColor: COLORS.darken }]} />
 
-      {/* Button with shadow (normal state) */}
-      <Animated.View
-        style={[
-          styles.buttonShadow,
-          {
-            opacity: buttonShadowOpacity,
-            transform: [{ scale: buttonScale }],
-            shadowColor: darkenColor,
-          },
-        ]}
-      >
-        <View style={[styles.buttonInner, { backgroundColor: baseColor }]} />
-      </Animated.View>
+            {/* Main wave body with gradient */}
+            <LinearGradient
+              colors={[COLORS.lighten, COLORS.base, COLORS.darken]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
 
-      {/* Button with inset effect (pressed state) */}
-      <Animated.View
-        style={[
-          styles.buttonInset,
-          {
-            opacity: buttonInsetOpacity,
-            transform: [{ scale: buttonScale }],
-            backgroundColor: baseColor,
-          },
-        ]}
-      >
+          {/* Inner wave - creates the ring effect */}
+          <Animated.View
+            style={[
+              styles.waveInner,
+              {
+                width: innerWaveSize,
+                height: innerWaveSize,
+                borderRadius: Animated.divide(innerWaveSize, 2),
+                backgroundColor: COLORS.base,
+              },
+            ]}
+          >
+            {/* Inset effect using gradient */}
+            <LinearGradient
+              colors={[COLORS.darken, COLORS.base, COLORS.lighten]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[StyleSheet.absoluteFill, { opacity: 0.5 }]}
+            />
+          </Animated.View>
+        </Animated.View>
+      )}
+
+      {/* Neumorphic button */}
+      <View style={styles.buttonWrapper}>
+        {/* Outer shadows - only when NOT pressed */}
+        {!isPressed && (
+          <>
+            {/* Light shadow (top-left) */}
+            <View
+              style={[
+                styles.buttonShadow,
+                {
+                  width: buttonSize,
+                  height: buttonSize,
+                  borderRadius: buttonSize / 2,
+                  backgroundColor: COLORS.lighten,
+                  top: -6,
+                  left: -6,
+                },
+              ]}
+            />
+            {/* Dark shadow (bottom-right) */}
+            <View
+              style={[
+                styles.buttonShadow,
+                {
+                  width: buttonSize,
+                  height: buttonSize,
+                  borderRadius: buttonSize / 2,
+                  backgroundColor: COLORS.darken,
+                  top: 6,
+                  left: 6,
+                },
+              ]}
+            />
+          </>
+        )}
+
+        {/* Main button */}
         <View
           style={[
-            styles.buttonInsetInner,
+            styles.button,
             {
-              backgroundColor: darkenColor,
-              shadowColor: lightenColor,
+              width: buttonSize,
+              height: buttonSize,
+              borderRadius: buttonSize / 2,
+              backgroundColor: COLORS.base,
             },
           ]}
-        />
-      </Animated.View>
+        >
+          {/* Inset effect when pressed */}
+          {isPressed && (
+            <LinearGradient
+              colors={[COLORS.darken, COLORS.base, COLORS.lighten]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.insetGradient,
+                { borderRadius: buttonSize / 2 },
+              ]}
+            />
+          )}
+
+          {/* Convex effect when not pressed */}
+          {!isPressed && (
+            <LinearGradient
+              colors={[COLORS.lighten, COLORS.base, COLORS.darken]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.convexGradient,
+                { borderRadius: buttonSize / 2 },
+              ]}
+            />
+          )}
+        </View>
+      </View>
     </View>
   );
 }
@@ -180,57 +240,62 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.base,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  wave: {
+  waveContainer: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 20, height: 20 },
-    shadowOpacity: 0.5,
-    shadowRadius: 30,
-    elevation: 10,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'rgba(72, 157, 207, 0.3)',
   },
-  innerWave: {
+  waveOuter: {
     position: 'absolute',
+    overflow: 'hidden',
+  },
+  waveShadowLight: {
+    position: 'absolute',
+    top: -20,
+    left: -20,
+    right: 20,
+    bottom: 20,
+    opacity: 0.6,
+  },
+  waveShadowDark: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: -20,
+    bottom: -20,
+    opacity: 0.6,
+  },
+  waveInner: {
+    position: 'absolute',
+    overflow: 'hidden',
+  },
+  buttonWrapper: {
+    position: 'relative',
+    zIndex: 10,
+    width: 80,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonShadow: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    shadowOffset: { width: 6, height: 6 },
-    shadowOpacity: 0.8,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 10,
-  },
-  buttonInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-  },
-  buttonInset: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    zIndex: 10,
+  },
+  button: {
+    position: 'absolute',
     overflow: 'hidden',
   },
-  buttonInsetInner: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    margin: 4,
-    shadowOffset: { width: -3, height: -3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 2,
+  insetGradient: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.7,
+  },
+  convexGradient: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.4,
   },
 });
 
