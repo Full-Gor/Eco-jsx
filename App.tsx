@@ -3,7 +3,7 @@
  * Phase 2: Auth & User
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,11 +14,18 @@ import { ThemeProvider, useTheme } from './src/theme';
 import { ToastProvider } from './src/components/common/Toast';
 import { AuthProvider, useAuth, CatalogProvider, CartProvider } from './src/contexts';
 import { RootNavigator } from './src/navigation';
+import { SplashScreen } from './src/screens/splash/SplashScreen';
 
 /** App content with theme and auth access */
 function AppContent() {
   const theme = useTheme();
   const { isAuthenticated, isLoading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Show splash screen with wave animation
+  if (showSplash) {
+    return <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
+  }
 
   // Show loading screen while checking auth status
   if (isLoading) {

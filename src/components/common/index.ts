@@ -26,6 +26,8 @@ export { Toggle, ThemeToggle } from './Toggle';
 
 export { IconToggleButton, NavButton } from './IconToggleButton';
 
+export { PowerButton } from './PowerButton';
+
 // Re-export from layout
 export { Header } from '../layout/Header';
 export type { HeaderProps } from '../layout/Header';
