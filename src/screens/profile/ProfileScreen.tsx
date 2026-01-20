@@ -77,6 +77,11 @@ export function ProfileScreen() {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // Settings toggle states for animations
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [languageToggle, setLanguageToggle] = useState(false);
+  const [securityEnabled, setSecurityEnabled] = useState(true);
+
   const getThemeModeLabel = (): string => {
     switch (themeMode) {
       case 'light':
@@ -231,8 +236,11 @@ export function ProfileScreen() {
               <IconToggleButton
                 iconLeft="notifications-off-outline"
                 iconRight="notifications-outline"
-                value={true}
-                onPress={() => navigation.navigate('Notifications')}
+                value={notificationsEnabled}
+                onPress={() => {
+                  setNotificationsEnabled(!notificationsEnabled);
+                  setTimeout(() => navigation.navigate('Notifications'), 300);
+                }}
                 size="md"
               />
             </View>
@@ -251,8 +259,11 @@ export function ProfileScreen() {
               <IconToggleButton
                 iconLeft="language-outline"
                 iconRight="globe-outline"
-                value={false}
-                onPress={() => navigation.navigate('Language')}
+                value={languageToggle}
+                onPress={() => {
+                  setLanguageToggle(!languageToggle);
+                  setTimeout(() => navigation.navigate('Language'), 300);
+                }}
                 size="md"
               />
             </View>
@@ -261,8 +272,11 @@ export function ProfileScreen() {
               <IconToggleButton
                 iconLeft="lock-open-outline"
                 iconRight="lock-closed-outline"
-                value={true}
-                onPress={() => navigation.navigate('Security')}
+                value={securityEnabled}
+                onPress={() => {
+                  setSecurityEnabled(!securityEnabled);
+                  setTimeout(() => navigation.navigate('Security'), 300);
+                }}
                 size="md"
               />
             </View>
