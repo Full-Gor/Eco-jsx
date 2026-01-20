@@ -1,7 +1,7 @@
 /**
  * Power Button Component
- * Neumorphic style power button for logout
- * Uses LinearGradient to simulate CSS inset box-shadow
+ * True Neumorphic style power button using react-native-shadow-2
+ * Requires TWO shadows (light + dark) for the 3D effect
  */
 
 import React, { useState } from 'react';
@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Shadow } from 'react-native-shadow-2';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -49,190 +49,114 @@ export function PowerButton({
   const colors = theme.isDark
     ? {
         background: '#3d4452',
-        lightShadow: '#4a5568',
-        darkShadow: '#2d3748',
-        gradientLight: 'rgba(255, 255, 255, 0.1)',
-        gradientDark: 'rgba(0, 0, 0, 0.3)',
+        shadowLight: '#4a5568',
+        shadowDark: '#2d3748',
         iconOff: '#cc0000',
         iconOn: '#00cc44',
       }
     : {
-        background: '#cecece',
-        lightShadow: '#ffffff',
-        darkShadow: '#a3a3a3',
-        gradientLight: 'rgba(255, 255, 255, 0.8)',
-        gradientDark: 'rgba(70, 70, 70, 0.2)',
+        background: '#e0e0e0',
+        shadowLight: '#ffffff',
+        shadowDark: '#bebebe',
         iconOff: '#cc0000',
         iconOn: '#009933',
       };
 
-  const borderWidth = size * 0.06;
   const iconSize = size * 0.4;
-  const innerSize = size - borderWidth * 2;
 
+  // Inset effect simulated with borders
+  const insetStyle = {
+    borderWidth: 2,
+    borderTopColor: colors.shadowDark,
+    borderLeftColor: colors.shadowDark,
+    borderBottomColor: colors.shadowLight,
+    borderRightColor: colors.shadowLight,
+  };
+
+  if (isPressed) {
+    // INSET state - pressed look with border trick
+    return (
+      <View style={styles.container}>
+        <Pressable
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          disabled={disabled}
+          style={[
+            styles.button,
+            {
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              backgroundColor: colors.background,
+              opacity: disabled ? 0.5 : 1,
+            },
+            insetStyle,
+          ]}
+        >
+          <Ionicons
+            name="power"
+            size={iconSize}
+            color={colors.iconOn}
+          />
+        </Pressable>
+      </View>
+    );
+  }
+
+  // RAISED state - with dual shadows
   return (
-    <View style={[styles.wrapper, { width: size + 20, height: size + 20 }]}>
-      {/* Outer shadows - only when NOT pressed */}
-      {!isPressed && (
-        <>
-          {/* Light shadow (top-left) */}
-          <View
-            style={[
-              styles.outerShadowLight,
-              {
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                backgroundColor: colors.lightShadow,
-                top: 0,
-                left: 0,
-              },
-            ]}
-          />
-          {/* Dark shadow (bottom-right) */}
-          <View
-            style={[
-              styles.outerShadowDark,
-              {
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                backgroundColor: colors.darkShadow,
-                top: 20,
-                left: 20,
-              },
-            ]}
-          />
-        </>
-      )}
-
-      <Pressable
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={disabled}
-        style={[
-          styles.button,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: colors.background,
-            borderWidth: borderWidth,
-            borderColor: colors.background,
-            top: 10,
-            left: 10,
-            opacity: disabled ? 0.5 : 1,
-          },
-        ]}
+    <View style={styles.container}>
+      {/* Dark shadow (bottom-right) */}
+      <Shadow
+        distance={12}
+        startColor={colors.shadowDark}
+        endColor="transparent"
+        offset={[6, 6]}
+        style={{ borderRadius: size / 2 }}
       >
-        {/* Inset effect when pressed - using gradients */}
-        {isPressed ? (
-          <View style={[styles.innerContainer, { borderRadius: innerSize / 2 }]}>
-            {/* Top-left dark gradient (inset shadow) */}
-            <LinearGradient
-              colors={[colors.gradientDark, 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0.7, y: 0.7 }}
-              style={[
-                styles.insetGradient,
-                {
-                  width: innerSize,
-                  height: innerSize,
-                  borderRadius: innerSize / 2,
-                },
-              ]}
+        {/* Light shadow (top-left) */}
+        <Shadow
+          distance={12}
+          startColor={colors.shadowLight}
+          endColor="transparent"
+          offset={[-6, -6]}
+          style={{ borderRadius: size / 2 }}
+        >
+          <Pressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            disabled={disabled}
+            style={[
+              styles.button,
+              {
+                width: size,
+                height: size,
+                borderRadius: size / 2,
+                backgroundColor: colors.background,
+                opacity: disabled ? 0.5 : 1,
+              },
+            ]}
+          >
+            <Ionicons
+              name="power"
+              size={iconSize}
+              color={colors.iconOff}
             />
-            {/* Bottom-right light gradient (inset highlight) */}
-            <LinearGradient
-              colors={['transparent', colors.gradientLight]}
-              start={{ x: 0.3, y: 0.3 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.insetGradient,
-                {
-                  width: innerSize,
-                  height: innerSize,
-                  borderRadius: innerSize / 2,
-                },
-              ]}
-            />
-            {/* Center fill */}
-            <View
-              style={[
-                styles.centerFill,
-                {
-                  width: innerSize * 0.7,
-                  height: innerSize * 0.7,
-                  borderRadius: (innerSize * 0.7) / 2,
-                  backgroundColor: colors.background,
-                },
-              ]}
-            />
-          </View>
-        ) : (
-          <View style={[styles.innerContainer, { borderRadius: innerSize / 2 }]}>
-            {/* Convex effect - light top-left, dark bottom-right */}
-            <LinearGradient
-              colors={[colors.gradientLight, 'transparent', colors.gradientDark]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.convexGradient,
-                {
-                  width: innerSize,
-                  height: innerSize,
-                  borderRadius: innerSize / 2,
-                },
-              ]}
-            />
-          </View>
-        )}
-
-        {/* Power icon */}
-        <Ionicons
-          name="power"
-          size={iconSize}
-          color={isPressed ? colors.iconOn : colors.iconOff}
-          style={styles.icon}
-        />
-      </Pressable>
+          </Pressable>
+        </Shadow>
+      </Shadow>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    position: 'relative',
-  },
-  outerShadowLight: {
-    position: 'absolute',
-  },
-  outerShadowDark: {
-    position: 'absolute',
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
-    position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  innerContainer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  insetGradient: {
-    position: 'absolute',
-  },
-  convexGradient: {
-    position: 'absolute',
-  },
-  centerFill: {
-    position: 'absolute',
-  },
-  icon: {
-    zIndex: 10,
   },
 });
 
