@@ -1,6 +1,6 @@
 /**
  * Splash Screen with Neumorphic Wave Animation
- * Uses react-native-shadow-2 for true neumorphic dual shadows
+ * Based on CSS neumorphism with dual shadows
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -12,7 +12,7 @@ import {
   StatusBar,
   Easing,
 } from 'react-native';
-import { Shadow } from 'react-native-shadow-2';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_WAVE_SIZE = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2.5;
@@ -94,20 +94,11 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
 
   const buttonSize = 60;
 
-  // Inset effect simulated with borders
-  const insetStyle = {
-    borderWidth: 3,
-    borderTopColor: COLORS.darken,
-    borderLeftColor: COLORS.darken,
-    borderBottomColor: COLORS.lighten,
-    borderRightColor: COLORS.lighten,
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.base} />
 
-      {/* Wave effect - using simple neumorphic ring */}
+      {/* Wave effect */}
       {showWave && (
         <Animated.View
           style={[
@@ -119,7 +110,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
             },
           ]}
         >
-          {/* Outer wave ring with neumorphic border */}
+          {/* Outer wave - neumorphic ring */}
           <Animated.View
             style={[
               styles.waveOuter,
@@ -127,15 +118,22 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
                 width: waveSize,
                 height: waveSize,
                 borderRadius: Animated.divide(waveSize, 2),
-                backgroundColor: COLORS.base,
-                borderWidth: 8,
-                borderTopColor: COLORS.lighten,
-                borderLeftColor: COLORS.lighten,
-                borderBottomColor: COLORS.darken,
-                borderRightColor: COLORS.darken,
               },
             ]}
-          />
+          >
+            {/* Light shadow (top-left) */}
+            <View style={[styles.waveShadowLight, { backgroundColor: COLORS.lighten }]} />
+            {/* Dark shadow (bottom-right) */}
+            <View style={[styles.waveShadowDark, { backgroundColor: COLORS.darken }]} />
+
+            {/* Main wave body with gradient */}
+            <LinearGradient
+              colors={[COLORS.lighten, COLORS.base, COLORS.darken]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </Animated.View>
 
           {/* Inner wave - creates the ring effect */}
           <Animated.View
@@ -148,56 +146,92 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
                 backgroundColor: COLORS.base,
               },
             ]}
-          />
+          >
+            {/* Inset effect using gradient */}
+            <LinearGradient
+              colors={[COLORS.darken, COLORS.base, COLORS.lighten]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[StyleSheet.absoluteFill, { opacity: 0.5 }]}
+            />
+          </Animated.View>
         </Animated.View>
       )}
 
-      {/* Neumorphic button with react-native-shadow-2 */}
+      {/* Neumorphic button */}
       <View style={styles.buttonWrapper}>
-        {isPressed ? (
-          // INSET state - pressed look with border trick
-          <View
-            style={[
-              styles.button,
-              {
-                width: buttonSize,
-                height: buttonSize,
-                borderRadius: buttonSize / 2,
-                backgroundColor: COLORS.base,
-              },
-              insetStyle,
-            ]}
-          />
-        ) : (
-          // RAISED state - with dual shadows
-          <Shadow
-            distance={10}
-            startColor={COLORS.darken}
-            endColor="transparent"
-            offset={[5, 5]}
-            style={{ borderRadius: buttonSize / 2 }}
-          >
-            <Shadow
-              distance={10}
-              startColor={COLORS.lighten}
-              endColor="transparent"
-              offset={[-5, -5]}
-              style={{ borderRadius: buttonSize / 2 }}
-            >
-              <View
-                style={[
-                  styles.button,
-                  {
-                    width: buttonSize,
-                    height: buttonSize,
-                    borderRadius: buttonSize / 2,
-                    backgroundColor: COLORS.base,
-                  },
-                ]}
-              />
-            </Shadow>
-          </Shadow>
+        {/* Outer shadows - only when NOT pressed */}
+        {!isPressed && (
+          <>
+            {/* Light shadow (top-left) */}
+            <View
+              style={[
+                styles.buttonShadow,
+                {
+                  width: buttonSize,
+                  height: buttonSize,
+                  borderRadius: buttonSize / 2,
+                  backgroundColor: COLORS.lighten,
+                  top: -6,
+                  left: -6,
+                },
+              ]}
+            />
+            {/* Dark shadow (bottom-right) */}
+            <View
+              style={[
+                styles.buttonShadow,
+                {
+                  width: buttonSize,
+                  height: buttonSize,
+                  borderRadius: buttonSize / 2,
+                  backgroundColor: COLORS.darken,
+                  top: 6,
+                  left: 6,
+                },
+              ]}
+            />
+          </>
         )}
+
+        {/* Main button */}
+        <View
+          style={[
+            styles.button,
+            {
+              width: buttonSize,
+              height: buttonSize,
+              borderRadius: buttonSize / 2,
+              backgroundColor: COLORS.base,
+            },
+          ]}
+        >
+          {/* Inset effect when pressed */}
+          {isPressed && (
+            <LinearGradient
+              colors={[COLORS.darken, COLORS.base, COLORS.lighten]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.insetGradient,
+                { borderRadius: buttonSize / 2 },
+              ]}
+            />
+          )}
+
+          {/* Convex effect when not pressed */}
+          {!isPressed && (
+            <LinearGradient
+              colors={[COLORS.lighten, COLORS.base, COLORS.darken]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.convexGradient,
+                { borderRadius: buttonSize / 2 },
+              ]}
+            />
+          )}
+        </View>
       </View>
     </View>
   );
@@ -220,6 +254,22 @@ const styles = StyleSheet.create({
     position: 'absolute',
     overflow: 'hidden',
   },
+  waveShadowLight: {
+    position: 'absolute',
+    top: -20,
+    left: -20,
+    right: 20,
+    bottom: 20,
+    opacity: 0.6,
+  },
+  waveShadowDark: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: -20,
+    bottom: -20,
+    opacity: 0.6,
+  },
   waveInner: {
     position: 'absolute',
     overflow: 'hidden',
@@ -232,9 +282,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  buttonShadow: {
+    position: 'absolute',
+  },
   button: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    overflow: 'hidden',
+  },
+  insetGradient: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.7,
+  },
+  convexGradient: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.4,
   },
 });
 

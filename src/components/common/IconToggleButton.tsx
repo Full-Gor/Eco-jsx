@@ -1,6 +1,6 @@
 /**
  * Icon Toggle Button Component
- * True Neumorphic 3D style button using react-native-shadow-2
+ * 3D style button with icons, can toggle or navigate
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -11,7 +11,6 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { Shadow } from 'react-native-shadow-2';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -86,25 +85,53 @@ export function IconToggleButton({
     outputRange: [0.3, 1],
   });
 
-  // Theme colors for neumorphism
+  const leftShadowOpacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 0.15],
+  });
+
+  const rightShadowOpacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.15, 0.8],
+  });
+
+  const leftShadowRotate = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '-12deg'],
+  });
+
+  const rightShadowRotate = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['12deg', '0deg'],
+  });
+
+  // Theme colors
   const colors = theme.isDark
     ? {
-        background: '#3d4452',
-        shadowLight: '#4a5568',
-        shadowDark: '#2d3748',
+        outerBg: '#2d3748',
+        outerBorderTop: '#1a202c',
+        outerBorderBottom: '#4a5568',
         innerBg: '#3d4452',
+        optionsBg: '#3d4452',
+        optionsBorder: '#4a5568',
         iconActive: '#f6e05e',
         iconInactive: '#4a5568',
         separator: '#2d3748',
+        separatorHighlight: '#4a5568',
+        shadowColor: 'rgba(0, 0, 0, 0.9)',
       }
     : {
-        background: '#e0e0e0',
-        shadowLight: '#ffffff',
-        shadowDark: '#bebebe',
-        innerBg: '#e0e0e0',
+        outerBg: '#e5e7eb',
+        outerBorderTop: '#a1a1aa',
+        outerBorderBottom: '#f4f4f5',
+        innerBg: '#f3f4f6',
+        optionsBg: '#f3f4f6',
+        optionsBorder: '#ffffff',
         iconActive: '#f59e0b',
         iconInactive: '#9ca3af',
         separator: '#d1d5db',
+        separatorHighlight: '#ffffff',
+        shadowColor: 'rgba(0, 0, 0, 0.5)',
       };
 
   return (
@@ -115,104 +142,116 @@ export function IconToggleButton({
       style={[
         styles.container,
         {
+          width: currentSize.width,
+          height: currentSize.height,
           opacity: disabled ? 0.5 : 1,
         },
       ]}
     >
-      {/* Dual shadow wrapper for neumorphic effect */}
-      <Shadow
-        distance={8}
-        startColor={colors.shadowDark}
-        endColor="transparent"
-        offset={[4, 4]}
-        style={{ borderRadius: currentSize.borderRadius }}
+      <View
+        style={[
+          styles.outerShell,
+          {
+            backgroundColor: colors.outerBg,
+            borderRadius: currentSize.borderRadius,
+            borderTopColor: colors.outerBorderTop,
+            borderBottomColor: colors.outerBorderBottom,
+            borderLeftColor: colors.outerBorderTop,
+            borderRightColor: colors.outerBorderBottom,
+          },
+        ]}
       >
-        <Shadow
-          distance={8}
-          startColor={colors.shadowLight}
-          endColor="transparent"
-          offset={[-4, -4]}
-          style={{ borderRadius: currentSize.borderRadius }}
+        <View
+          style={[
+            styles.innerTrack,
+            {
+              backgroundColor: colors.innerBg,
+              borderRadius: currentSize.borderRadius - 4,
+            },
+          ]}
         >
-          <View
+          {/* Left shadow */}
+          <Animated.View
             style={[
-              styles.outerShell,
+              styles.shadowElement,
+              styles.shadowLeft,
               {
-                width: currentSize.width,
-                height: currentSize.height,
-                backgroundColor: colors.background,
-                borderRadius: currentSize.borderRadius,
+                opacity: leftShadowOpacity,
+                transform: [{ rotate: leftShadowRotate }],
+                backgroundColor: colors.shadowColor,
+                borderTopLeftRadius: currentSize.borderRadius - 6,
+                borderBottomLeftRadius: currentSize.borderRadius - 6,
+              },
+            ]}
+          />
+
+          {/* Right shadow */}
+          <Animated.View
+            style={[
+              styles.shadowElement,
+              styles.shadowRight,
+              {
+                opacity: rightShadowOpacity,
+                transform: [{ rotate: rightShadowRotate }],
+                backgroundColor: colors.shadowColor,
+                borderTopRightRadius: currentSize.borderRadius - 6,
+                borderBottomRightRadius: currentSize.borderRadius - 6,
+              },
+            ]}
+          />
+
+          {/* Options container with 3D transform */}
+          <Animated.View
+            style={[
+              styles.optionsContainer,
+              {
+                backgroundColor: colors.optionsBg,
+                borderRadius: currentSize.borderRadius - 6,
+                borderColor: colors.optionsBorder,
+                transform: [
+                  { translateX },
+                  { perspective: 250 },
+                  { rotateY },
+                ],
               },
             ]}
           >
+            {/* Left icon */}
+            <Animated.View style={[styles.iconWrapper, { opacity: leftIconOpacity }]}>
+              <Ionicons
+                name={iconLeft}
+                size={currentSize.iconSize}
+                color={value ? colors.iconInactive : colors.iconActive}
+              />
+            </Animated.View>
+
+            {/* Separator */}
             <View
               style={[
-                styles.innerTrack,
+                styles.separator,
                 {
-                  backgroundColor: colors.innerBg,
-                  borderRadius: currentSize.borderRadius - 4,
-                  // Inset effect with borders
-                  borderWidth: 1,
-                  borderTopColor: colors.shadowDark,
-                  borderLeftColor: colors.shadowDark,
-                  borderBottomColor: colors.shadowLight,
-                  borderRightColor: colors.shadowLight,
+                  backgroundColor: colors.separator,
                 },
               ]}
-            >
-              {/* Options container with 3D transform */}
-              <Animated.View
-                style={[
-                  styles.optionsContainer,
-                  {
-                    backgroundColor: colors.innerBg,
-                    borderRadius: currentSize.borderRadius - 6,
-                    transform: [
-                      { translateX },
-                      { perspective: 250 },
-                      { rotateY },
-                    ],
-                  },
-                ]}
-              >
-                {/* Left icon */}
-                <Animated.View style={[styles.iconWrapper, { opacity: leftIconOpacity }]}>
-                  <Ionicons
-                    name={iconLeft}
-                    size={currentSize.iconSize}
-                    color={value ? colors.iconInactive : colors.iconActive}
-                  />
-                </Animated.View>
+            />
 
-                {/* Separator */}
-                <View
-                  style={[
-                    styles.separator,
-                    {
-                      backgroundColor: colors.separator,
-                    },
-                  ]}
-                />
-
-                {/* Right icon */}
-                <Animated.View style={[styles.iconWrapper, { opacity: rightIconOpacity }]}>
-                  <Ionicons
-                    name={iconRight}
-                    size={currentSize.iconSize}
-                    color={value ? colors.iconActive : colors.iconInactive}
-                  />
-                </Animated.View>
-              </Animated.View>
-            </View>
-          </View>
-        </Shadow>
-      </Shadow>
+            {/* Right icon */}
+            <Animated.View style={[styles.iconWrapper, { opacity: rightIconOpacity }]}>
+              <Ionicons
+                name={iconRight}
+                size={currentSize.iconSize}
+                color={value ? colors.iconActive : colors.iconInactive}
+              />
+            </Animated.View>
+          </Animated.View>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 }
 
 /**
- * Navigation Button - Neumorphic style button for navigation items
+ * Navigation Button - 3D style button for navigation items
  */
 interface NavButtonProps {
   icon: IconName;
@@ -249,15 +288,17 @@ export function NavButton({
 
   const colors = theme.isDark
     ? {
-        background: '#3d4452',
-        shadowLight: '#4a5568',
-        shadowDark: '#2d3748',
+        outerBg: '#2d3748',
+        outerBorderTop: '#1a202c',
+        outerBorderBottom: '#4a5568',
+        innerBg: '#3d4452',
         icon: '#e2e8f0',
       }
     : {
-        background: '#e0e0e0',
-        shadowLight: '#ffffff',
-        shadowDark: '#bebebe',
+        outerBg: '#e5e7eb',
+        outerBorderTop: '#a1a1aa',
+        outerBorderBottom: '#f4f4f5',
+        innerBg: '#f3f4f6',
         icon: '#374151',
       };
 
@@ -269,43 +310,42 @@ export function NavButton({
       style={[
         styles.container,
         {
+          width: currentSize.width,
+          height: currentSize.height,
           opacity: disabled ? 0.5 : 1,
         },
       ]}
     >
-      <Shadow
-        distance={6}
-        startColor={colors.shadowDark}
-        endColor="transparent"
-        offset={[3, 3]}
-        style={{ borderRadius: currentSize.borderRadius }}
+      <View
+        style={[
+          styles.outerShell,
+          {
+            backgroundColor: colors.outerBg,
+            borderRadius: currentSize.borderRadius,
+            borderTopColor: colors.outerBorderTop,
+            borderBottomColor: colors.outerBorderBottom,
+            borderLeftColor: colors.outerBorderTop,
+            borderRightColor: colors.outerBorderBottom,
+          },
+        ]}
       >
-        <Shadow
-          distance={6}
-          startColor={colors.shadowLight}
-          endColor="transparent"
-          offset={[-3, -3]}
-          style={{ borderRadius: currentSize.borderRadius }}
+        <View
+          style={[
+            styles.innerTrack,
+            styles.navInner,
+            {
+              backgroundColor: colors.innerBg,
+              borderRadius: currentSize.borderRadius - 4,
+            },
+          ]}
         >
-          <View
-            style={[
-              styles.navButton,
-              {
-                width: currentSize.width,
-                height: currentSize.height,
-                backgroundColor: colors.background,
-                borderRadius: currentSize.borderRadius,
-              },
-            ]}
-          >
-            <Ionicons
-              name={icon}
-              size={currentSize.iconSize}
-              color={colors.icon}
-            />
-          </View>
-        </Shadow>
-      </Shadow>
+          <Ionicons
+            name={icon}
+            size={currentSize.iconSize}
+            color={colors.icon}
+          />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -316,18 +356,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   outerShell: {
+    width: '100%',
+    height: '100%',
+    borderWidth: 1,
     padding: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 6,
   },
   innerTrack: {
     flex: 1,
     overflow: 'hidden',
     justifyContent: 'center',
   },
+  navInner: {
+    alignItems: 'center',
+  },
+  shadowElement: {
+    position: 'absolute',
+    top: 2,
+    bottom: 2,
+    width: '45%',
+    zIndex: 1,
+  },
+  shadowLeft: {
+    left: 0,
+  },
+  shadowRight: {
+    right: 0,
+  },
   optionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     height: '100%',
+    borderWidth: 0.5,
+    zIndex: 2,
   },
   iconWrapper: {
     flex: 1,
@@ -337,10 +403,6 @@ const styles = StyleSheet.create({
   separator: {
     width: 1,
     height: '50%',
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 
