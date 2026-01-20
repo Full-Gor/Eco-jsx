@@ -5,7 +5,7 @@
 import { Address, Timestamps } from './common';
 
 /** User role in the system */
-export type UserRole = 'customer' | 'admin' | 'vendor' | 'moderator';
+export type UserRole = 'customer' | 'admin' | 'vendor' | 'vendeur' | 'client' | 'moderator';
 
 /** User authentication status */
 export type AuthStatus = 'authenticated' | 'unauthenticated' | 'loading';
