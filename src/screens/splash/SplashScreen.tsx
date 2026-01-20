@@ -37,6 +37,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
   const waveSize = useRef(new Animated.Value(40)).current;
   const innerWaveSize = useRef(new Animated.Value(0)).current;
   const waveOpacity = useRef(new Animated.Value(0)).current;
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Start animation after a short delay
@@ -48,10 +49,20 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
   }, []);
 
   const startAnimation = () => {
-    // Phase 1: Button press (inset effect)
-    setIsPressed(true);
+    // Phase 0: Fade in button smoothly
+    Animated.timing(buttonOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    }).start();
 
-    // Phase 2: Start wave after button press
+    // Phase 1: Button press (inset effect) - delayed to allow fade in
+    setTimeout(() => {
+      setIsPressed(true);
+    }, 200);
+
+    // Phase 2: Start wave after button press (adjusted for fade in delay)
     setTimeout(() => {
       setShowWave(true);
 
@@ -159,7 +170,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
       )}
 
       {/* Neumorphic button */}
-      <View style={styles.buttonWrapper}>
+      <Animated.View style={[styles.buttonWrapper, { opacity: buttonOpacity }]}>
         {/* Outer shadows - only when NOT pressed */}
         {!isPressed && (
           <>
@@ -232,7 +243,7 @@ export function SplashScreen({ onAnimationComplete }: SplashScreenProps) {
             />
           )}
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }
