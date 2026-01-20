@@ -55,3 +55,17 @@ export { RecommendationProvider, useRecommendations } from './RecommendationCont
 export { SellerProvider, useSeller } from './SellerContext';
 
 export { SellerDashboardProvider, useSellerDashboard } from './SellerDashboardContext';
+
+// Vendor Management
+export { DatabaseProvider, useDatabase } from './DatabaseContext';
+
+export {
+  VendorProvider,
+  useVendor,
+  useShop,
+  useVendorProducts,
+  useVendorOrders,
+  useVendorCategories,
+  useVendorDashboard,
+  useImageUpload,
+} from './VendorContext';

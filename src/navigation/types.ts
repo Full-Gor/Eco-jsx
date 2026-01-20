@@ -76,10 +76,32 @@ export type ProfileStackParamList = {
   Privacy: undefined;
 };
 
+/** Vendor Tab param list */
+export type VendorTabParamList = {
+  VendorDashboard: undefined;
+  MyShop: undefined;
+  MyProducts: undefined;
+  VendorOrders: undefined;
+  VendorProfile: undefined;
+};
+
+/** Vendor Stack param list */
+export type VendorStackParamList = {
+  VendorDashboardScreen: undefined;
+  MyShopScreen: undefined;
+  MyProductsScreen: undefined;
+  AddProduct: undefined;
+  EditProduct: { productId: string };
+  VendorOrdersScreen: undefined;
+  VendorOrderDetail: { orderId: string };
+  VendorProfileScreen: undefined;
+};
+
 /** Root Stack param list */
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;
+  Vendor: NavigatorScreenParams<VendorTabParamList>;
   Modal: undefined;
 };
 
@@ -136,6 +158,20 @@ export type ProfileStackScreenProps<T extends keyof ProfileStackParamList> =
   CompositeScreenProps<
     NativeStackScreenProps<ProfileStackParamList, T>,
     MainTabScreenProps<'Profile'>
+  >;
+
+// Vendor Tab screen props
+export type VendorTabScreenProps<T extends keyof VendorTabParamList> =
+  CompositeScreenProps<
+    BottomTabScreenProps<VendorTabParamList, T>,
+    RootStackScreenProps<keyof RootStackParamList>
+  >;
+
+// Vendor Stack screen props
+export type VendorStackScreenProps<T extends keyof VendorStackParamList> =
+  CompositeScreenProps<
+    NativeStackScreenProps<VendorStackParamList, T>,
+    VendorTabScreenProps<'VendorDashboard'>
   >;
 
 /** Declaration for TypeScript */

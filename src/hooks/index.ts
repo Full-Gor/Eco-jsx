@@ -54,3 +54,14 @@ export {
 
 // Re-export marketplace hooks from contexts (Phase 8)
 export { useSeller, useSellerDashboard } from '../contexts';
+
+// Re-export vendor hooks from contexts
+export {
+  useVendor,
+  useShop,
+  useVendorProducts,
+  useVendorOrders,
+  useVendorCategories,
+  useVendorDashboard,
+  useImageUpload,
+} from '../contexts';
