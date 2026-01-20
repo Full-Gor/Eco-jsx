@@ -10,7 +10,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme, useThemeContext } from '../../theme';
-import { Card, Modal, Button, IconToggleButton, NavButton } from '../../components/common';
+import { Card, Modal, Button, IconToggleButton, PowerButton } from '../../components/common';
 import { useToast } from '../../components/common/Toast';
 import { useAuth } from '../../hooks';
 import { ProfileStackParamList } from '../../navigation/types';
@@ -295,17 +295,14 @@ export function ProfileScreen() {
             />
           </Card>
 
-          {/* Logout */}
+          {/* Logout - Power Button */}
           {isAuthenticated && (
-            <Card variant="outlined" padding="none" style={styles.section}>
-              <MenuItem
-                icon="log-out-outline"
-                label="Se déconnecter"
-                showArrow={false}
-                danger
+            <View style={styles.logoutSection}>
+              <PowerButton
                 onPress={() => setLogoutModalVisible(true)}
+                size={70}
               />
-            </Card>
+            </View>
           )}
 
           {/* App version */}
@@ -486,9 +483,16 @@ const styles = StyleSheet.create({
   settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     paddingVertical: 12,
     paddingHorizontal: 16,
+    paddingLeft: '10%',
+  },
+  logoutSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    marginBottom: 16,
   },
 });
 
