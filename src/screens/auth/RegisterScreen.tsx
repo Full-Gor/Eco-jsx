@@ -1,6 +1,11 @@
 /**
- * Register Screen
- * Functional registration with multi-backend support
+ * Register Screen - Neumorphic Pastel Blue Design
+ *
+ * PALETTE HARMONIEUSE :
+ * - Fond principal : #d4e5f7 (bleu ciel pastel doux)
+ * - Ombre claire : #ffffff (blanc pur)
+ * - Ombre sombre : #b3c7db (bleu-gris doux)
+ * - Accent : #7eb8e2 (bleu plus soutenu pour focus)
  */
 
 import React, { useState } from 'react';
@@ -12,15 +17,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../theme';
-import { Button, Input } from '../../components/common';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  NeumorphicInput,
+  NeumorphicButton,
+  NeumorphicCard,
+  NeumorphicCheckbox,
+  neumorphicColors,
+} from '../../components/auth';
 import { useToast } from '../../components/common/Toast';
-import { Header } from '../../components/layout';
 import { AuthStackParamList } from '../../navigation/types';
 import { useAuth } from '../../hooks';
 import { isValidEmail } from '../../utils';
@@ -36,8 +48,9 @@ interface FormErrors {
   terms?: string;
 }
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 export function RegisterScreen() {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<RegisterNavigationProp>();
   const { register } = useAuth();
@@ -48,6 +61,8 @@ export function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,11 +88,11 @@ export function RegisterScreen() {
     if (!password) {
       newErrors.password = 'Le mot de passe est requis';
     } else if (password.length < 8) {
-      newErrors.password = 'Le mot de passe doit contenir au moins 8 caractères';
+      newErrors.password = 'Minimum 8 caractères';
     } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = 'Le mot de passe doit contenir une majuscule';
+      newErrors.password = 'Une majuscule requise';
     } else if (!/[0-9]/.test(password)) {
-      newErrors.password = 'Le mot de passe doit contenir un chiffre';
+      newErrors.password = 'Un chiffre requis';
     }
 
     if (!confirmPassword) {
@@ -110,7 +125,6 @@ export function RegisterScreen() {
 
       if (result.success) {
         showToast('Compte créé avec succès !', 'success');
-        // Navigation will be handled by the auth state change
       } else {
         showToast(result.error?.message || 'Échec de l\'inscription', 'error');
       }
@@ -127,205 +141,182 @@ export function RegisterScreen() {
     }
   };
 
-  const Checkbox = ({
-    checked,
-    onPress,
-    label,
-    error,
-  }: {
-    checked: boolean;
-    onPress: () => void;
-    label: React.ReactNode;
-    error?: string;
-  }) => (
-    <View style={styles.checkboxContainer}>
-      <TouchableOpacity
-        style={[
-          styles.checkbox,
-          {
-            borderColor: error ? theme.colors.error : theme.colors.border,
-            backgroundColor: checked ? theme.colors.primary : 'transparent',
-          },
-        ]}
-        onPress={onPress}
-        disabled={loading}
-      >
-        {checked && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
-      </TouchableOpacity>
-      <TouchableOpacity onPress={onPress} style={styles.checkboxLabel} disabled={loading}>
-        {typeof label === 'string' ? (
-          <Text style={[styles.checkboxText, { color: theme.colors.text }]}>{label}</Text>
-        ) : (
-          label
-        )}
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Header
-        showBack
-        onBackPress={() => navigation.goBack()}
-        title="Créer un compte"
-      />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={neumorphicColors.background} />
+
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+        activeOpacity={0.7}
+      >
+        <View style={styles.backButtonInner}>
+          <LinearGradient
+            colors={[neumorphicColors.shadowDark, 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.5, y: 0.5 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <Ionicons name="chevron-back" size={24} color={neumorphicColors.text} />
+        </View>
+      </TouchableOpacity>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
       >
         <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingHorizontal: theme.spacing.lg },
-          ]}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.title, { color: theme.colors.text }]}>
-            Bienvenue !
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Créez votre compte pour commencer vos achats
-          </Text>
+          {/* Card Container */}
+          <NeumorphicCard style={styles.cardContainer}>
+            {/* Title */}
+            <Text style={styles.title}>Register</Text>
 
-          <View style={styles.form}>
-            <View style={styles.row}>
-              <View style={styles.halfInput}>
-                <Input
-                  label="Prénom"
-                  placeholder="Jean"
-                  value={firstName}
-                  onChangeText={(text) => {
-                    setFirstName(text);
-                    clearError('firstName');
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Name Row */}
+              <View style={styles.row}>
+                <View style={styles.halfInput}>
+                  <NeumorphicInput
+                    label="Prénom"
+                    placeholder="Jean"
+                    value={firstName}
+                    onChangeText={(text) => {
+                      setFirstName(text);
+                      clearError('firstName');
+                    }}
+                    autoCapitalize="words"
+                    autoComplete="given-name"
+                    leftIcon="person-outline"
+                    error={errors.firstName}
+                    editable={!loading}
+                  />
+                </View>
+                <View style={styles.spacer} />
+                <View style={styles.halfInput}>
+                  <NeumorphicInput
+                    label="Nom"
+                    placeholder="Dupont"
+                    value={lastName}
+                    onChangeText={(text) => {
+                      setLastName(text);
+                      clearError('lastName');
+                    }}
+                    autoCapitalize="words"
+                    autoComplete="family-name"
+                    error={errors.lastName}
+                    editable={!loading}
+                  />
+                </View>
+              </View>
+
+              {/* Email Field */}
+              <NeumorphicInput
+                label="Email"
+                placeholder="votre@email.com"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  clearError('email');
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                leftIcon="mail-outline"
+                error={errors.email}
+                editable={!loading}
+              />
+
+              {/* Password Field */}
+              <NeumorphicInput
+                label="Mot de passe"
+                placeholder="Minimum 8 caractères"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  clearError('password');
+                }}
+                secureTextEntry={!showPassword}
+                autoComplete="new-password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                error={errors.password}
+                editable={!loading}
+              />
+
+              {/* Confirm Password Field */}
+              <NeumorphicInput
+                label="Confirmer le mot de passe"
+                placeholder="Répétez votre mot de passe"
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  clearError('confirmPassword');
+                }}
+                secureTextEntry={!showConfirmPassword}
+                autoComplete="new-password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                error={errors.confirmPassword}
+                editable={!loading}
+              />
+
+              {/* Terms Checkbox */}
+              <View style={styles.checkboxSection}>
+                <NeumorphicCheckbox
+                  checked={acceptTerms}
+                  onPress={() => {
+                    setAcceptTerms(!acceptTerms);
+                    clearError('terms');
                   }}
-                  autoCapitalize="words"
-                  autoComplete="given-name"
-                  leftIcon="person-outline"
-                  error={errors.firstName}
-                  editable={!loading}
+                  error={!!errors.terms}
+                  disabled={loading}
+                  label={
+                    <Text style={styles.checkboxText}>
+                      J'accepte les{' '}
+                      <Text style={styles.checkboxLink}>conditions d'utilisation</Text>
+                      {' '}et la{' '}
+                      <Text style={styles.checkboxLink}>politique de confidentialité</Text>
+                    </Text>
+                  }
+                />
+                {errors.terms && (
+                  <Text style={styles.errorText}>{errors.terms}</Text>
+                )}
+
+                {/* Newsletter Checkbox */}
+                <NeumorphicCheckbox
+                  checked={newsletter}
+                  onPress={() => setNewsletter(!newsletter)}
+                  disabled={loading}
+                  label="Je souhaite recevoir les offres et nouveautés par email"
                 />
               </View>
-              <View style={{ width: theme.spacing.md }} />
-              <View style={styles.halfInput}>
-                <Input
-                  label="Nom"
-                  placeholder="Dupont"
-                  value={lastName}
-                  onChangeText={(text) => {
-                    setLastName(text);
-                    clearError('lastName');
-                  }}
-                  autoCapitalize="words"
-                  autoComplete="family-name"
-                  error={errors.lastName}
-                  editable={!loading}
-                />
-              </View>
+
+              {/* Submit Button */}
+              <NeumorphicButton
+                title="Créer mon compte"
+                onPress={handleRegister}
+                loading={loading}
+                size="lg"
+              />
             </View>
+          </NeumorphicCard>
 
-            <View style={{ height: theme.spacing.md }} />
-
-            <Input
-              label="Email"
-              placeholder="votre@email.com"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                clearError('email');
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              leftIcon="mail-outline"
-              error={errors.email}
-              editable={!loading}
-            />
-
-            <View style={{ height: theme.spacing.md }} />
-
-            <Input
-              label="Mot de passe"
-              placeholder="Minimum 8 caractères"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                clearError('password');
-              }}
-              secureTextEntry
-              autoComplete="new-password"
-              leftIcon="lock-closed-outline"
-              error={errors.password}
-              editable={!loading}
-            />
-
-            <View style={{ height: theme.spacing.md }} />
-
-            <Input
-              label="Confirmer le mot de passe"
-              placeholder="Répétez votre mot de passe"
-              value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                clearError('confirmPassword');
-              }}
-              secureTextEntry
-              autoComplete="new-password"
-              leftIcon="lock-closed-outline"
-              error={errors.confirmPassword}
-              editable={!loading}
-            />
-
-            <View style={{ height: theme.spacing.lg }} />
-
-            <Checkbox
-              checked={acceptTerms}
-              onPress={() => {
-                setAcceptTerms(!acceptTerms);
-                clearError('terms');
-              }}
-              error={errors.terms}
-              label={
-                <Text style={[styles.checkboxText, { color: theme.colors.text }]}>
-                  J'accepte les{' '}
-                  <Text style={{ color: theme.colors.primary }}>
-                    conditions d'utilisation
-                  </Text>{' '}
-                  et la{' '}
-                  <Text style={{ color: theme.colors.primary }}>
-                    politique de confidentialité
-                  </Text>
-                </Text>
-              }
-            />
-
-            {errors.terms && (
-              <Text style={[styles.errorText, { color: theme.colors.error }]}>
-                {errors.terms}
-              </Text>
-            )}
-
-            <View style={{ height: theme.spacing.sm }} />
-
-            <Checkbox
-              checked={newsletter}
-              onPress={() => setNewsletter(!newsletter)}
-              label="Je souhaite recevoir les offres et nouveautés par email"
-            />
-          </View>
-
-          <Button onPress={handleRegister} loading={loading} size="lg" fullWidth>
-            Créer mon compte
-          </Button>
-
+          {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
-              Déjà un compte ?{' '}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
-              <Text style={[styles.footerLink, { color: theme.colors.primary }]}>
-                Se connecter
-              </Text>
+            <Text style={styles.footerText}>Déjà un compte ? </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login')}
+              disabled={loading}
+            >
+              <Text style={styles.footerLink}>Se connecter</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -337,26 +328,47 @@ export function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: neumorphicColors.background,
   },
   keyboardView: {
     flex: 1,
   },
-  content: {
+  scrollContent: {
     flexGrow: 1,
-    paddingTop: 24,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingTop: 80,
+    paddingBottom: 40,
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 20,
+    left: 20,
+    zIndex: 10,
+  },
+  backButtonInner: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: neumorphicColors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  cardContainer: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 450,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
+    fontSize: 42,
+    fontWeight: '500',
+    color: neumorphicColors.text,
+    textAlign: 'center',
     marginBottom: 32,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   form: {
-    marginBottom: 24,
+    gap: 4,
   },
   row: {
     flexDirection: 'row',
@@ -364,44 +376,41 @@ const styles = StyleSheet.create({
   halfInput: {
     flex: 1,
   },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
+  spacer: {
+    width: 12,
   },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  checkboxLabel: {
-    flex: 1,
-    marginLeft: 12,
+  checkboxSection: {
+    marginTop: 8,
+    marginBottom: 16,
   },
   checkboxText: {
     fontSize: 14,
+    color: neumorphicColors.text,
     lineHeight: 20,
+  },
+  checkboxLink: {
+    color: neumorphicColors.accent,
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 12,
+    color: neumorphicColors.error,
     marginTop: 4,
     marginLeft: 34,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: 32,
   },
   footerText: {
     fontSize: 14,
+    color: neumorphicColors.textLight,
   },
   footerLink: {
     fontSize: 14,
     fontWeight: '600',
+    color: neumorphicColors.accent,
   },
 });
 

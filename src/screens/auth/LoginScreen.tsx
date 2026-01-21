@@ -1,6 +1,11 @@
 /**
- * Login Screen
- * Functional login with multi-backend support
+ * Login Screen - Neumorphic Pastel Blue Design
+ *
+ * PALETTE HARMONIEUSE :
+ * - Fond principal : #d4e5f7 (bleu ciel pastel doux)
+ * - Ombre claire : #ffffff (blanc pur)
+ * - Ombre sombre : #b3c7db (bleu-gris doux)
+ * - Accent : #7eb8e2 (bleu plus soutenu pour focus)
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,6 +17,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -19,10 +26,16 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { useTheme } from '../../theme';
-import { Button, Input } from '../../components/common';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  NeumorphicInput,
+  NeumorphicButton,
+  NeumorphicCard,
+  NeumorphicSocialButton,
+  NeumorphicDivider,
+  neumorphicColors,
+} from '../../components/auth';
 import { useToast } from '../../components/common/Toast';
-import { Header } from '../../components/layout';
 import { AuthStackParamList } from '../../navigation/types';
 import { useAuth } from '../../hooks';
 import { isValidEmail } from '../../utils';
@@ -32,13 +45,14 @@ WebBrowser.maybeCompleteAuthSession();
 
 type LoginNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
-// Google OAuth Client IDs - Replace with your own from Google Cloud Console
+// Google OAuth Client IDs
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '';
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '';
 const GOOGLE_ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 export function LoginScreen() {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<LoginNavigationProp>();
   const { login, socialLogin } = useAuth();
@@ -46,6 +60,7 @@ export function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -72,14 +87,12 @@ export function LoginScreen() {
 
   const handleGoogleLogin = async (accessToken: string) => {
     try {
-      // Get user info from Google
       const userInfoResponse = await fetch(
         'https://www.googleapis.com/userinfo/v2/me',
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       const userInfo = await userInfoResponse.json();
 
-      // Send to our backend for authentication
       const result = await socialLogin({
         provider: 'google',
         token: accessToken,
@@ -132,7 +145,6 @@ export function LoginScreen() {
 
       if (result.success) {
         showToast('Connexion réussie !', 'success');
-        // Navigation will be handled by the auth state change
       } else {
         showToast(result.error?.message || 'Échec de la connexion', 'error');
       }
@@ -146,163 +158,140 @@ export function LoginScreen() {
   const handleSocialLogin = async (provider: 'google' | 'apple' | 'facebook') => {
     if (provider === 'google') {
       if (!GOOGLE_CLIENT_ID && !GOOGLE_IOS_CLIENT_ID && !GOOGLE_ANDROID_CLIENT_ID) {
-        showToast('Configuration Google manquante. Ajoutez EXPO_PUBLIC_GOOGLE_CLIENT_ID dans .env', 'error');
+        showToast('Configuration Google manquante', 'error');
         return;
       }
       setSocialLoading(true);
       promptAsync();
     } else if (provider === 'apple') {
-      // Apple Sign In - needs expo-apple-authentication
       showToast('Connexion Apple bientôt disponible', 'info');
     } else if (provider === 'facebook') {
-      // Facebook Login - needs expo-facebook
       showToast('Connexion Facebook bientôt disponible', 'info');
     }
   };
 
-  const SocialButton = ({
-    provider,
-    icon,
-    label,
-    color,
-  }: {
-    provider: 'google' | 'apple' | 'facebook';
-    icon: keyof typeof Ionicons.glyphMap;
-    label: string;
-    color: string;
-  }) => (
-    <TouchableOpacity
-      style={[
-        styles.socialButton,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
-          opacity: socialLoading ? 0.6 : 1,
-        },
-      ]}
-      onPress={() => handleSocialLogin(provider)}
-      activeOpacity={0.7}
-      disabled={loading || socialLoading}
-    >
-      <Ionicons name={icon} size={20} color={color} />
-      <Text style={[styles.socialButtonText, { color: theme.colors.text }]}>
-        {socialLoading && provider === 'google' ? 'Connexion...' : label}
-      </Text>
-    </TouchableOpacity>
-  );
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Header
-        showBack
-        onBackPress={() => navigation.goBack()}
-        title="Connexion"
-      />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={neumorphicColors.background} />
+
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+        activeOpacity={0.7}
+      >
+        <View style={styles.backButtonInner}>
+          <LinearGradient
+            colors={[neumorphicColors.shadowDark, 'transparent']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.5, y: 0.5 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <Ionicons name="chevron-back" size={24} color={neumorphicColors.text} />
+        </View>
+      </TouchableOpacity>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
       >
         <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingHorizontal: theme.spacing.lg },
-          ]}
+          contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.title, { color: theme.colors.text }]}>
-            Bon retour !
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-            Connectez-vous pour accéder à votre compte
-          </Text>
+          {/* Card Container */}
+          <NeumorphicCard style={styles.cardContainer}>
+            {/* Title */}
+            <Text style={styles.title}>Login</Text>
 
-          <View style={styles.form}>
-            <Input
-              label="Email"
-              placeholder="votre@email.com"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (errors.email) setErrors((e) => ({ ...e, email: undefined }));
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              leftIcon="mail-outline"
-              error={errors.email}
-              editable={!loading}
-            />
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Email Field */}
+              <NeumorphicInput
+                label="Email"
+                placeholder="votre@email.com"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (errors.email) setErrors((e) => ({ ...e, email: undefined }));
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                leftIcon="mail-outline"
+                error={errors.email}
+                editable={!loading}
+              />
 
-            <View style={{ height: theme.spacing.lg }} />
+              {/* Password Field */}
+              <NeumorphicInput
+                label="Password"
+                placeholder="••••••••"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) setErrors((e) => ({ ...e, password: undefined }));
+                }}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+                leftIcon="lock-closed-outline"
+                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                onRightIconPress={() => setShowPassword(!showPassword)}
+                error={errors.password}
+                editable={!loading}
+              />
 
-            <Input
-              label="Mot de passe"
-              placeholder="Votre mot de passe"
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (errors.password) setErrors((e) => ({ ...e, password: undefined }));
-              }}
-              secureTextEntry
-              autoComplete="password"
-              leftIcon="lock-closed-outline"
-              error={errors.password}
-              editable={!loading}
-            />
+              {/* Submit Button */}
+              <NeumorphicButton
+                title="Submit"
+                onPress={handleLogin}
+                loading={loading}
+                size="lg"
+              />
+            </View>
 
+            {/* Forgot Password */}
             <TouchableOpacity
               onPress={() => navigation.navigate('ForgotPassword')}
               style={styles.forgotPassword}
               disabled={loading}
             >
-              <Text style={[styles.forgotPasswordText, { color: theme.colors.primary }]}>
-                Mot de passe oublié ?
-              </Text>
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
-          </View>
+          </NeumorphicCard>
 
-          <Button onPress={handleLogin} loading={loading} size="lg" fullWidth>
-            Se connecter
-          </Button>
+          {/* Divider */}
+          <NeumorphicDivider text="ou continuer avec" />
 
-          <View style={styles.divider}>
-            <View style={[styles.dividerLine, { backgroundColor: theme.colors.border }]} />
-            <Text style={[styles.dividerText, { color: theme.colors.textSecondary }]}>
-              ou continuer avec
-            </Text>
-            <View style={[styles.dividerLine, { backgroundColor: theme.colors.border }]} />
-          </View>
-
+          {/* Social Buttons */}
           <View style={styles.socialButtons}>
-            <SocialButton
+            <NeumorphicSocialButton
               provider="google"
-              icon="logo-google"
-              label="Google"
-              color="#DB4437"
+              onPress={() => handleSocialLogin('google')}
+              loading={socialLoading}
+              disabled={loading}
             />
-            <SocialButton
+            <NeumorphicSocialButton
               provider="apple"
-              icon="logo-apple"
-              label="Apple"
-              color={theme.isDark ? '#FFFFFF' : '#000000'}
+              onPress={() => handleSocialLogin('apple')}
+              disabled={loading || socialLoading}
             />
-            <SocialButton
+            <NeumorphicSocialButton
               provider="facebook"
-              icon="logo-facebook"
-              label="Facebook"
-              color="#4267B2"
+              onPress={() => handleSocialLogin('facebook')}
+              disabled={loading || socialLoading}
             />
           </View>
 
+          {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.colors.textSecondary }]}>
-              Pas encore de compte ?{' '}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
-              <Text style={[styles.footerLink, { color: theme.colors.primary }]}>
-                Créer un compte
-              </Text>
+            <Text style={styles.footerText}>Pas encore de compte ? </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Register')}
+              disabled={loading}
+            >
+              <Text style={styles.footerLink}>Créer un compte</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -314,77 +303,77 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: neumorphicColors.background,
   },
   keyboardView: {
     flex: 1,
   },
-  content: {
+  scrollContent: {
     flexGrow: 1,
-    paddingTop: 24,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    justifyContent: 'center',
+    minHeight: SCREEN_HEIGHT * 0.85,
+  },
+  backButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 20,
+    left: 20,
+    zIndex: 10,
+  },
+  backButtonInner: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: neumorphicColors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  cardContainer: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 450,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
+    fontSize: 48,
+    fontWeight: '500',
+    color: neumorphicColors.text,
+    textAlign: 'center',
+    marginBottom: 40,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   form: {
-    marginBottom: 24,
+    gap: 8,
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: 12,
+    alignSelf: 'center',
+    marginTop: 24,
+    paddingVertical: 8,
   },
   forgotPasswordText: {
     fontSize: 14,
-    fontWeight: '500',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
+    color: neumorphicColors.accent,
+    fontWeight: '400',
   },
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-  },
-  socialButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    gap: 8,
-  },
-  socialButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+    marginTop: 8,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    marginTop: 32,
   },
   footerText: {
     fontSize: 14,
+    color: neumorphicColors.textLight,
   },
   footerLink: {
     fontSize: 14,
     fontWeight: '600',
+    color: neumorphicColors.accent,
   },
 });
 
