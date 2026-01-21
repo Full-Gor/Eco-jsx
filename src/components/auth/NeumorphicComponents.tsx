@@ -1,12 +1,14 @@
 /**
  * Neumorphic Components for Auth Screens
- * Pastel Sky Blue Theme
+ * Pastel Sky Blue Theme - TRUE NEUMORPHISM
  *
  * PALETTE HARMONIEUSE :
  * - Fond principal : #d4e5f7 (bleu ciel pastel doux)
  * - Ombre claire : #ffffff (blanc pur)
  * - Ombre sombre : #b3c7db (bleu-gris doux)
  * - Accent : #7eb8e2 (bleu plus soutenu pour focus)
+ *
+ * Technique: Shadows = positioned Views with solid background colors (like SplashScreen)
  */
 
 import React, { useState } from 'react';
@@ -38,6 +40,11 @@ export const neumorphicColors = {
   white: '#ffffff',
 };
 
+// Shadow offset values
+const SHADOW_OFFSET_LARGE = 8;
+const SHADOW_OFFSET_MEDIUM = 5;
+const SHADOW_OFFSET_SMALL = 3;
+
 // ==================== NEUMORPHIC INPUT ====================
 
 interface NeumorphicInputProps extends TextInputProps {
@@ -65,65 +72,73 @@ export function NeumorphicInput({
         <Text style={styles.inputLabel}>{label}</Text>
       )}
 
-      {/* Outer container for inset shadow effect */}
-      <View style={[
-        styles.inputWrapper,
-        isFocused && styles.inputWrapperFocused,
-        error && styles.inputWrapperError,
-      ]}>
-        {/* Inset shadow using gradient overlays */}
-        <LinearGradient
-          colors={[neumorphicColors.shadowDark, 'transparent']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.5, y: 0.5 }}
-          style={styles.insetShadowTopLeft}
-        />
-        <LinearGradient
-          colors={['transparent', neumorphicColors.shadowLight]}
-          start={{ x: 0.5, y: 0.5 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.insetShadowBottomRight}
-        />
+      {/* Input wrapper with inset neumorphic effect */}
+      <View style={styles.inputOuterWrapper}>
+        {/* Inset light shadow (bottom-right - appears inside) */}
+        <View style={styles.inputInsetLight} />
+        {/* Inset dark shadow (top-left - appears inside) */}
+        <View style={styles.inputInsetDark} />
 
-        {/* Content container */}
-        <View style={styles.inputContent}>
-          {leftIcon && (
-            <Ionicons
-              name={leftIcon}
-              size={20}
-              color={isFocused ? neumorphicColors.accent : neumorphicColors.textLight}
-              style={styles.leftIcon}
-            />
-          )}
-
-          <TextInput
-            style={[
-              styles.textInput,
-              leftIcon && { paddingLeft: 0 },
-              rightIcon && { paddingRight: 0 },
-              style,
+        {/* Main input container */}
+        <View style={[
+          styles.inputWrapper,
+          isFocused && styles.inputWrapperFocused,
+          error && styles.inputWrapperError,
+        ]}>
+          {/* Inner gradient for depth effect */}
+          <LinearGradient
+            colors={[
+              'rgba(179, 199, 219, 0.35)',
+              'transparent',
+              'transparent',
+              'rgba(255, 255, 255, 0.5)',
             ]}
-            placeholderTextColor={neumorphicColors.textLight}
-            onFocus={(e) => {
-              setIsFocused(true);
-              props.onFocus?.(e);
-            }}
-            onBlur={(e) => {
-              setIsFocused(false);
-              props.onBlur?.(e);
-            }}
-            {...props}
+            locations={[0, 0.25, 0.75, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.inputGradient}
           />
 
-          {rightIcon && (
-            <Pressable onPress={onRightIconPress} style={styles.rightIcon}>
+          {/* Content container */}
+          <View style={styles.inputContent}>
+            {leftIcon && (
               <Ionicons
-                name={rightIcon}
+                name={leftIcon}
                 size={20}
-                color={neumorphicColors.textLight}
+                color={isFocused ? neumorphicColors.accent : neumorphicColors.textLight}
+                style={styles.leftIcon}
               />
-            </Pressable>
-          )}
+            )}
+
+            <TextInput
+              style={[
+                styles.textInput,
+                leftIcon && { paddingLeft: 0 },
+                rightIcon && { paddingRight: 0 },
+                style,
+              ]}
+              placeholderTextColor={neumorphicColors.textLight}
+              onFocus={(e) => {
+                setIsFocused(true);
+                props.onFocus?.(e);
+              }}
+              onBlur={(e) => {
+                setIsFocused(false);
+                props.onBlur?.(e);
+              }}
+              {...props}
+            />
+
+            {rightIcon && (
+              <Pressable onPress={onRightIconPress} style={styles.rightIcon}>
+                <Ionicons
+                  name={rightIcon}
+                  size={20}
+                  color={neumorphicColors.textLight}
+                />
+              </Pressable>
+            )}
+          </View>
         </View>
       </View>
 
@@ -189,27 +204,70 @@ export function NeumorphicButton({
     <View style={[
       styles.buttonWrapper,
       fullWidth && { width: '100%' },
+      { height: buttonHeight + 20 },
       style,
     ]}>
       {/* Outer shadows - only when NOT pressed */}
       {!isPressed && !isDisabled && (
         <>
           {/* Light shadow (top-left) */}
-          <View style={[
-            styles.buttonShadowLight,
-            {
-              height: buttonHeight,
-              borderRadius: 24,
-            },
-          ]} />
+          <View
+            style={[
+              styles.buttonShadow,
+              {
+                height: buttonHeight,
+                backgroundColor: neumorphicColors.shadowLight,
+                top: 10 - SHADOW_OFFSET_MEDIUM,
+                left: -SHADOW_OFFSET_MEDIUM,
+                right: SHADOW_OFFSET_MEDIUM,
+              },
+            ]}
+          />
           {/* Dark shadow (bottom-right) */}
-          <View style={[
-            styles.buttonShadowDark,
-            {
-              height: buttonHeight,
-              borderRadius: 24,
-            },
-          ]} />
+          <View
+            style={[
+              styles.buttonShadow,
+              {
+                height: buttonHeight,
+                backgroundColor: neumorphicColors.shadowDark,
+                top: 10 + SHADOW_OFFSET_MEDIUM,
+                left: SHADOW_OFFSET_MEDIUM,
+                right: -SHADOW_OFFSET_MEDIUM,
+              },
+            ]}
+          />
+        </>
+      )}
+
+      {/* Inset shadows when pressed */}
+      {isPressed && (
+        <>
+          {/* Inset light (bottom-right) */}
+          <View
+            style={[
+              styles.buttonShadow,
+              {
+                height: buttonHeight,
+                backgroundColor: neumorphicColors.shadowLight,
+                top: 10 + SHADOW_OFFSET_SMALL,
+                left: SHADOW_OFFSET_SMALL,
+                right: -SHADOW_OFFSET_SMALL,
+              },
+            ]}
+          />
+          {/* Inset dark (top-left) */}
+          <View
+            style={[
+              styles.buttonShadow,
+              {
+                height: buttonHeight,
+                backgroundColor: neumorphicColors.shadowDark,
+                top: 10 - SHADOW_OFFSET_SMALL,
+                left: -SHADOW_OFFSET_SMALL,
+                right: SHADOW_OFFSET_SMALL,
+              },
+            ]}
+          />
         </>
       )}
 
@@ -223,6 +281,7 @@ export function NeumorphicButton({
           styles.button,
           {
             height: buttonHeight,
+            top: 10,
             opacity: isDisabled ? 0.6 : 1,
           },
         ]}
@@ -239,25 +298,37 @@ export function NeumorphicButton({
           <View style={[
             StyleSheet.absoluteFill,
             { backgroundColor: neumorphicColors.background, borderRadius: 24 },
-          ]} />
+          ]}>
+            {/* Convex gradient effect */}
+            {!isPressed && (
+              <LinearGradient
+                colors={[
+                  'rgba(255, 255, 255, 0.5)',
+                  'transparent',
+                  'rgba(179, 199, 219, 0.3)',
+                ]}
+                locations={[0, 0.5, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
+              />
+            )}
+          </View>
         )}
 
-        {/* Inset shadow when pressed */}
-        {isPressed && (
-          <>
-            <LinearGradient
-              colors={['rgba(0,0,0,0.2)', 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0.5, y: 0.5 }}
-              style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(255,255,255,0.3)']}
-              start={{ x: 0.5, y: 0.5 }}
-              end={{ x: 1, y: 1 }}
-              style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
-            />
-          </>
+        {/* Inset gradient when pressed */}
+        {isPressed && !isActive && (
+          <LinearGradient
+            colors={[
+              'rgba(179, 199, 219, 0.4)',
+              'transparent',
+              'rgba(255, 255, 255, 0.3)',
+            ]}
+            locations={[0, 0.5, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[StyleSheet.absoluteFill, { borderRadius: 24 }]}
+          />
         )}
 
         {/* Button content */}
@@ -282,7 +353,7 @@ export function NeumorphicButton({
                 {
                   fontSize,
                   color: isActive ? neumorphicColors.white : neumorphicColors.text,
-                  fontWeight: isActive ? '500' : '400',
+                  fontWeight: isActive ? '600' : '400',
                 },
               ]}>
                 {title}
@@ -309,9 +380,23 @@ export function NeumorphicCard({ children, style }: NeumorphicCardProps) {
       <View style={styles.cardShadowLight} />
       {/* Dark shadow (bottom-right) */}
       <View style={styles.cardShadowDark} />
-      {/* Card content */}
+
+      {/* Card content with convex gradient */}
       <View style={styles.card}>
-        {children}
+        <LinearGradient
+          colors={[
+            'rgba(255, 255, 255, 0.35)',
+            'transparent',
+            'rgba(179, 199, 219, 0.2)',
+          ]}
+          locations={[0, 0.5, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.cardGradient}
+        />
+        <View style={styles.cardContent}>
+          {children}
+        </View>
       </View>
     </View>
   );
@@ -340,19 +425,44 @@ export function NeumorphicCheckbox({
       onPress={onPress}
       disabled={disabled}
     >
-      <View style={[
-        styles.checkbox,
-        checked && styles.checkboxChecked,
-        error && styles.checkboxError,
-      ]}>
-        {checked && (
-          <Ionicons
-            name="checkmark"
-            size={14}
-            color={neumorphicColors.white}
-          />
+      <View style={styles.checkboxWrapper}>
+        {/* Shadow layers for unchecked state */}
+        {!checked && (
+          <>
+            {/* Light shadow (top-left) */}
+            <View style={styles.checkboxShadowLight} />
+            {/* Dark shadow (bottom-right) */}
+            <View style={styles.checkboxShadowDark} />
+          </>
         )}
+
+        <View style={[
+          styles.checkbox,
+          checked && styles.checkboxChecked,
+          error && styles.checkboxError,
+        ]}>
+          {checked ? (
+            <Ionicons
+              name="checkmark"
+              size={14}
+              color={neumorphicColors.white}
+            />
+          ) : (
+            <LinearGradient
+              colors={[
+                'rgba(255, 255, 255, 0.4)',
+                'transparent',
+                'rgba(179, 199, 219, 0.3)',
+              ]}
+              locations={[0, 0.5, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[StyleSheet.absoluteFill, { borderRadius: 6 }]}
+            />
+          )}
+        </View>
       </View>
+
       <View style={styles.checkboxLabelContainer}>
         {typeof label === 'string' ? (
           <Text style={styles.checkboxLabel}>{label}</Text>
@@ -392,11 +502,23 @@ export function NeumorphicSocialButton({
 
   return (
     <View style={styles.socialButtonWrapper}>
-      {/* Shadows */}
+      {/* Shadows when not pressed */}
       {!isPressed && !isDisabled && (
         <>
+          {/* Light shadow (top-left) */}
           <View style={styles.socialShadowLight} />
+          {/* Dark shadow (bottom-right) */}
           <View style={styles.socialShadowDark} />
+        </>
+      )}
+
+      {/* Inset shadows when pressed */}
+      {isPressed && (
+        <>
+          {/* Inset light (bottom-right) */}
+          <View style={styles.socialInsetLight} />
+          {/* Inset dark (top-left) */}
+          <View style={styles.socialInsetDark} />
         </>
       )}
 
@@ -411,18 +533,39 @@ export function NeumorphicSocialButton({
         disabled={isDisabled}
         style={[
           styles.socialButton,
-          isPressed && styles.socialButtonPressed,
           { opacity: isDisabled ? 0.6 : 1 },
         ]}
       >
-        {isPressed && (
+        {/* Convex gradient when not pressed */}
+        {!isPressed && (
           <LinearGradient
-            colors={['rgba(0,0,0,0.1)', 'transparent', 'rgba(255,255,255,0.2)']}
+            colors={[
+              'rgba(255, 255, 255, 0.4)',
+              'transparent',
+              'rgba(179, 199, 219, 0.2)',
+            ]}
+            locations={[0, 0.5, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
           />
         )}
+
+        {/* Inset gradient when pressed */}
+        {isPressed && (
+          <LinearGradient
+            colors={[
+              'rgba(179, 199, 219, 0.3)',
+              'transparent',
+              'rgba(255, 255, 255, 0.25)',
+            ]}
+            locations={[0, 0.5, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
+          />
+        )}
+
         <Ionicons name={icon} size={20} color={color} />
         <Text style={styles.socialButtonText}>
           {loading ? '...' : label}
@@ -441,9 +584,19 @@ interface NeumorphicDividerProps {
 export function NeumorphicDivider({ text }: NeumorphicDividerProps) {
   return (
     <View style={styles.dividerContainer}>
-      <View style={styles.dividerLine} />
+      {/* Left line with neumorphic effect */}
+      <View style={styles.dividerLineWrapper}>
+        <View style={styles.dividerLineShadowLight} />
+        <View style={styles.dividerLineShadowDark} />
+      </View>
+
       <Text style={styles.dividerText}>{text}</Text>
-      <View style={styles.dividerLine} />
+
+      {/* Right line with neumorphic effect */}
+      <View style={styles.dividerLineWrapper}>
+        <View style={styles.dividerLineShadowLight} />
+        <View style={styles.dividerLineShadowDark} />
+      </View>
     </View>
   );
 }
@@ -462,6 +615,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
+  inputOuterWrapper: {
+    position: 'relative',
+  },
+  // Inset shadows for inputs (reversed - dark top-left, light bottom-right)
+  inputInsetLight: {
+    position: 'absolute',
+    top: SHADOW_OFFSET_MEDIUM,
+    left: SHADOW_OFFSET_MEDIUM,
+    right: -SHADOW_OFFSET_MEDIUM,
+    bottom: -SHADOW_OFFSET_MEDIUM,
+    borderRadius: 24,
+    backgroundColor: neumorphicColors.shadowLight,
+  },
+  inputInsetDark: {
+    position: 'absolute',
+    top: -SHADOW_OFFSET_MEDIUM,
+    left: -SHADOW_OFFSET_MEDIUM,
+    right: SHADOW_OFFSET_MEDIUM,
+    bottom: SHADOW_OFFSET_MEDIUM,
+    borderRadius: 24,
+    backgroundColor: neumorphicColors.shadowDark,
+  },
   inputWrapper: {
     borderRadius: 24,
     backgroundColor: neumorphicColors.background,
@@ -475,21 +650,12 @@ const styles = StyleSheet.create({
   inputWrapperError: {
     borderColor: neumorphicColors.error,
   },
-  insetShadowTopLeft: {
+  inputGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.6,
-  },
-  insetShadowBottomRight: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.4,
   },
   inputContent: {
     flexDirection: 'row',
@@ -523,21 +689,16 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginVertical: 8,
   },
-  buttonShadowLight: {
+  buttonShadow: {
     position: 'absolute',
-    top: -5,
-    left: -5,
-    right: 10,
-    backgroundColor: neumorphicColors.shadowLight,
-  },
-  buttonShadowDark: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    right: -5,
-    backgroundColor: neumorphicColors.shadowDark,
+    left: 0,
+    right: 0,
+    borderRadius: 24,
   },
   button: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     borderRadius: 24,
     overflow: 'hidden',
     justifyContent: 'center',
@@ -555,29 +716,40 @@ const styles = StyleSheet.create({
   // Card styles
   cardWrapper: {
     position: 'relative',
-    padding: 13,
+    padding: SHADOW_OFFSET_LARGE + 5,
   },
   cardShadowLight: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 13,
-    bottom: 13,
-    backgroundColor: neumorphicColors.shadowLight,
+    top: SHADOW_OFFSET_LARGE + 5 - SHADOW_OFFSET_LARGE,
+    left: SHADOW_OFFSET_LARGE + 5 - SHADOW_OFFSET_LARGE,
+    right: SHADOW_OFFSET_LARGE + 5 + SHADOW_OFFSET_LARGE,
+    bottom: SHADOW_OFFSET_LARGE + 5 + SHADOW_OFFSET_LARGE,
     borderRadius: 24,
+    backgroundColor: neumorphicColors.shadowLight,
   },
   cardShadowDark: {
     position: 'absolute',
-    top: 13,
-    left: 13,
-    right: 0,
-    bottom: 0,
-    backgroundColor: neumorphicColors.shadowDark,
+    top: SHADOW_OFFSET_LARGE + 5 + SHADOW_OFFSET_LARGE,
+    left: SHADOW_OFFSET_LARGE + 5 + SHADOW_OFFSET_LARGE,
+    right: SHADOW_OFFSET_LARGE + 5 - SHADOW_OFFSET_LARGE,
+    bottom: SHADOW_OFFSET_LARGE + 5 - SHADOW_OFFSET_LARGE,
     borderRadius: 24,
+    backgroundColor: neumorphicColors.shadowDark,
   },
   card: {
     backgroundColor: neumorphicColors.background,
     borderRadius: 24,
+    overflow: 'hidden',
+  },
+  cardGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 24,
+  },
+  cardContent: {
     padding: 32,
   },
 
@@ -587,27 +759,52 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginVertical: 8,
   },
+  checkboxWrapper: {
+    position: 'relative',
+    width: 32,
+    height: 32,
+    marginTop: -2,
+  },
+  checkboxShadowLight: {
+    position: 'absolute',
+    top: 5 - SHADOW_OFFSET_SMALL,
+    left: 5 - SHADOW_OFFSET_SMALL,
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    backgroundColor: neumorphicColors.shadowLight,
+  },
+  checkboxShadowDark: {
+    position: 'absolute',
+    top: 5 + SHADOW_OFFSET_SMALL,
+    left: 5 + SHADOW_OFFSET_SMALL,
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    backgroundColor: neumorphicColors.shadowDark,
+  },
   checkbox: {
+    position: 'absolute',
+    top: 5,
+    left: 5,
     width: 22,
     height: 22,
     borderRadius: 6,
     backgroundColor: neumorphicColors.background,
-    borderWidth: 2,
-    borderColor: neumorphicColors.shadowDark,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 2,
+    overflow: 'hidden',
   },
   checkboxChecked: {
     backgroundColor: neumorphicColors.accent,
-    borderColor: neumorphicColors.accent,
   },
   checkboxError: {
+    borderWidth: 2,
     borderColor: neumorphicColors.error,
   },
   checkboxLabelContainer: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
   },
   checkboxLabel: {
     fontSize: 14,
@@ -620,37 +817,57 @@ const styles = StyleSheet.create({
     position: 'relative',
     flex: 1,
     margin: 4,
+    height: 56,
   },
   socialShadowLight: {
     position: 'absolute',
-    top: -3,
-    left: -3,
-    right: 6,
-    bottom: 6,
-    backgroundColor: neumorphicColors.shadowLight,
+    top: 6 - SHADOW_OFFSET_SMALL,
+    left: 6 - SHADOW_OFFSET_SMALL,
+    right: 6 + SHADOW_OFFSET_SMALL,
+    bottom: 6 + SHADOW_OFFSET_SMALL,
     borderRadius: 16,
+    backgroundColor: neumorphicColors.shadowLight,
   },
   socialShadowDark: {
     position: 'absolute',
-    top: 3,
-    left: 3,
-    right: -3,
-    bottom: -3,
-    backgroundColor: neumorphicColors.shadowDark,
+    top: 6 + SHADOW_OFFSET_SMALL,
+    left: 6 + SHADOW_OFFSET_SMALL,
+    right: 6 - SHADOW_OFFSET_SMALL,
+    bottom: 6 - SHADOW_OFFSET_SMALL,
     borderRadius: 16,
+    backgroundColor: neumorphicColors.shadowDark,
+  },
+  socialInsetLight: {
+    position: 'absolute',
+    top: 6 + 2,
+    left: 6 + 2,
+    right: 6 - 2,
+    bottom: 6 - 2,
+    borderRadius: 16,
+    backgroundColor: neumorphicColors.shadowLight,
+  },
+  socialInsetDark: {
+    position: 'absolute',
+    top: 6 - 2,
+    left: 6 - 2,
+    right: 6 + 2,
+    bottom: 6 + 2,
+    borderRadius: 16,
+    backgroundColor: neumorphicColors.shadowDark,
   },
   socialButton: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    right: 6,
+    bottom: 6,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     backgroundColor: neumorphicColors.background,
     borderRadius: 16,
     gap: 8,
-  },
-  socialButtonPressed: {
-    backgroundColor: neumorphicColors.background,
+    overflow: 'hidden',
   },
   socialButtonText: {
     fontSize: 14,
@@ -663,9 +880,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 24,
+    paddingHorizontal: 8,
   },
-  dividerLine: {
+  dividerLineWrapper: {
     flex: 1,
+    height: 4,
+    position: 'relative',
+  },
+  dividerLineShadowLight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: neumorphicColors.shadowLight,
+  },
+  dividerLineShadowDark: {
+    position: 'absolute',
+    top: 3,
+    left: 0,
+    right: 0,
     height: 1,
     backgroundColor: neumorphicColors.shadowDark,
   },
