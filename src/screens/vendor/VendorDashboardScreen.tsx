@@ -340,7 +340,7 @@ function OrderCard({ order, theme, onPress }: OrderCardProps) {
             {order.clientName || 'Client'}
           </Text>
           <Text style={styles.itemsCount}>
-            {order.items.length} article(s)
+            {(order.items?.length || 0)} article(s)
           </Text>
         </View>
         <Text style={styles.orderTotal}>{formatCurrency(order.total)}</Text>

@@ -134,6 +134,20 @@ export function createNexusServAuthProvider(
         };
       }
 
+      // Normalize user data to ensure required fields exist
+      if (responseData.user) {
+        const u = responseData.user;
+        responseData.user = {
+          ...u,
+          // Ensure email is never null (use userId or empty string as fallback)
+          email: u.email || u.userId || '',
+          // Ensure isEmailVerified exists
+          isEmailVerified: u.isEmailVerified ?? (u.email ? true : false),
+          // Map displayName from username if not present
+          displayName: u.displayName || u.username || u.name,
+        };
+      }
+
       return {
         success: true,
         data: responseData,
@@ -155,20 +169,24 @@ export function createNexusServAuthProvider(
     if (!persistSession) return;
 
     try {
-      await SecureStore.setItemAsync(
-        STORAGE_KEYS.ACCESS_TOKEN,
-        session.tokens.accessToken
-      );
-      if (session.tokens.refreshToken) {
+      if (session.tokens?.accessToken) {
+        await SecureStore.setItemAsync(
+          STORAGE_KEYS.ACCESS_TOKEN,
+          session.tokens.accessToken
+        );
+      }
+      if (session.tokens?.refreshToken) {
         await SecureStore.setItemAsync(
           STORAGE_KEYS.REFRESH_TOKEN,
           session.tokens.refreshToken
         );
       }
-      await SecureStore.setItemAsync(
-        STORAGE_KEYS.USER,
-        JSON.stringify(session.user)
-      );
+      if (session.user) {
+        await SecureStore.setItemAsync(
+          STORAGE_KEYS.USER,
+          JSON.stringify(session.user)
+        );
+      }
     } catch (error) {
       console.error('Failed to save session:', error);
     }
@@ -241,7 +259,9 @@ export function createNexusServAuthProvider(
         if (result.success && result.data) {
           currentUser = result.data;
           setAuthStatus('authenticated');
-          scheduleRefresh(session.tokens.expiresIn);
+          if (session.tokens?.expiresIn) {
+            scheduleRefresh(session.tokens.expiresIn);
+          }
         } else {
           // Session invalid, try refresh
           const refreshResult = await this.refreshToken();
@@ -293,7 +313,9 @@ export function createNexusServAuthProvider(
         currentTokens = result.data.tokens;
         setAuthStatus('authenticated');
         await saveSession(result.data);
-        scheduleRefresh(result.data.tokens.expiresIn);
+        if (result.data.tokens?.expiresIn) {
+          scheduleRefresh(result.data.tokens.expiresIn);
+        }
         notifyListeners();
       }
 
@@ -320,7 +342,9 @@ export function createNexusServAuthProvider(
         currentTokens = result.data.tokens;
         setAuthStatus('authenticated');
         await saveSession(result.data);
-        scheduleRefresh(result.data.tokens.expiresIn);
+        if (result.data.tokens?.expiresIn) {
+          scheduleRefresh(result.data.tokens.expiresIn);
+        }
         notifyListeners();
       }
 
@@ -397,7 +421,9 @@ export function createNexusServAuthProvider(
         currentTokens = result.data.tokens;
         setAuthStatus('authenticated');
         await saveSession(result.data);
-        scheduleRefresh(result.data.tokens.expiresIn);
+        if (result.data.tokens?.expiresIn) {
+          scheduleRefresh(result.data.tokens.expiresIn);
+        }
         notifyListeners();
       } else {
         // Refresh failed, logout
@@ -457,7 +483,9 @@ export function createNexusServAuthProvider(
         currentTokens = result.data.tokens;
         setAuthStatus('authenticated');
         await saveSession(result.data);
-        scheduleRefresh(result.data.tokens.expiresIn);
+        if (result.data.tokens?.expiresIn) {
+          scheduleRefresh(result.data.tokens.expiresIn);
+        }
         notifyListeners();
       }
 

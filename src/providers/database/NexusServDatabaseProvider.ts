@@ -54,7 +54,8 @@ export function createNexusServDatabaseProvider(
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const SecureStore = await import('expo-secure-store');
-      return await SecureStore.getItemAsync('nexusserv_access_token');
+      // Use the same key as NexusServAuthProvider
+      return await SecureStore.getItemAsync('nexus_access_token');
     } catch {
       return authToken;
     }

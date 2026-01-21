@@ -27,7 +27,7 @@ export function RootNavigator({ initialAuthenticated }: RootNavigatorProps) {
     return null;
   }
 
-  // Determine if user is a vendor
+  // Determine if user is a vendor (user, customer, client = regular user)
   const isVendor = user?.role === 'vendor' || user?.role === 'vendeur';
 
   return (
